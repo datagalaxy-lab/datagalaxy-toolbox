@@ -6,6 +6,10 @@ on:
     - release/*
     tags:
     - v*
+  pull_request:
+    branches:
+    - main
+    - release/*
 jobs:
   Linux:
     name: Build Linux
