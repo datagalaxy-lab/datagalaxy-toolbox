@@ -39,8 +39,6 @@ jobs:
         - 3.9
     runs-on: windows-2022
     steps:
-    - name: Initialize CodeQL
-      uses: github.com/codeql-action/init@v2
     - uses: actions/checkout@v2
     - name: Setup Python ${{ matrix.python.version }}
       uses: actions/setup-python@v1
