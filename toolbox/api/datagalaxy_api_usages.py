@@ -1,7 +1,7 @@
 import logging
 
 import requests as requests
-from toolbox.api.datagalaxy_api_workspaces import DataGalaxyBulkResult, to_bulk_properties_tree
+from toolbox.api.datagalaxy_api_workspaces import DataGalaxyBulkResult, to_bulk_tree
 
 
 class DataGalaxyApiUsages:
@@ -42,7 +42,7 @@ class DataGalaxyApiUsages:
 
     def bulk_upsert_usages_tree(self, workspace_name: str, usages: list) -> DataGalaxyBulkResult:
         # Existing entities are updated and non-existing ones are created.
-        usages_ok_to_bulk = to_bulk_properties_tree(usages)
+        usages_ok_to_bulk = to_bulk_tree(usages)
         logging.info(f'usages_ok_to_bulk: {usages_ok_to_bulk}')
 
         if not self.workspace["isVersioningEnabled"]:

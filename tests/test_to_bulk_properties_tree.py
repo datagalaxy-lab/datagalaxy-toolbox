@@ -1,4 +1,4 @@
-from toolbox.api.datagalaxy_api_workspaces import to_bulk_properties_tree
+from toolbox.api.datagalaxy_api_workspaces import to_bulk_tree
 
 
 def test_transform_ok():
@@ -78,4 +78,4 @@ def test_transform_ok():
             ]
         }
     ]
-    assert to_bulk_properties_tree(properties) == expected
+    assert to_bulk_tree(properties) == expected
