@@ -3,7 +3,7 @@ pytest==6.2.5
 twine==3.4.2
 build==0.5.1
 wheel==0.38.1
-requests==2.26.0
+requests==2.31.0
 pytest-mock==3.6.1
 PyJWT==2.4.0
 pyinstaller==4.5.1
