@@ -83,7 +83,7 @@ class DataGalaxyApiGlossary:
 
     def bulk_upsert_property_tree(self, workspace_name: str, properties: list) -> DataGalaxyBulkResult:
         # Existing entities are updated and non-existing ones are created.
-        properties_ok_to_bulk = to_bulk_properties_tree(properties)
+        properties_ok_to_bulk = to_bulk_tree(properties)
         logging.info(f'properties_ok_to_bulk: {properties_ok_to_bulk}')
 
         if not self.workspace["isVersioningEnabled"]:
@@ -135,7 +135,7 @@ class DataGalaxyPathWithType:
     path_type: str
 
 
-def to_bulk_properties_tree(properties: list) -> list:
+def to_bulk_tree(properties: list) -> list:
     nodes_map = {}
     for property in properties:
         nodes_map[DataGalaxyPathWithType(property['path'], property['typePath'])] = property
