@@ -4,6 +4,7 @@ import sys
 
 from toolbox.commands.copy_attributes import copy_attributes_parse, copy_attributes
 from toolbox.commands.copy_usages import copy_usages, copy_usages_parse
+from toolbox.commands.copy_dataprocessings import copy_dataprocessings, copy_dataprocessings_parse
 from toolbox.commands.delete_attributes import delete_attributes_parse, delete_attributes
 from toolbox.commands.copy_glossary import copy_glossary_parse, copy_glossary
 from toolbox.commands.copy_dictionary import copy_dictionary, copy_dictionary_parse
@@ -26,6 +27,7 @@ def run(args):
     copy_glossary_parse(subparsers)
     copy_usages_parse(subparsers)
     copy_dictionary_parse(subparsers)
+    copy_dataprocessings_parse(subparsers)
     # parse some argument lists
     result = parser.parse_args(args)
     if result.verbose:
@@ -68,6 +70,13 @@ def run(args):
         copy_dictionary(result.url_source, result.url_target, result.token_source, result.token_target,
                         result.workspace_source, result.workspace_target)
         logging.info("<<< copy_dictionary")
+        return 0
+
+    if result.subparsers_name == 'copy-dataprocessings':
+        logging.info(">>> copy_dataprocessings")
+        copy_dataprocessings(result.url_source, result.url_target, result.token_source, result.token_target,
+                             result.workspace_source, result.workspace_target)
+        logging.info("<<< copy_dataprocessings")
         return 0
 
     parser.print_help(sys.stderr)
