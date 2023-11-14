@@ -41,20 +41,20 @@ class DataGalaxyApiAttributes:
 
         raise Exception(f'Unexpected error, code: {code}')
 
+    def list_values(self, data_type: str, attribute_key: str) -> list:
+        params = {'dataType': data_type.lower(), 'attributeKey': attribute_key}
+        headers = {'Authorization': f"Bearer {self.access_token}"}
+        request = requests.get(f"{self.url}/attributes/values", params=params, headers=headers)
+        code = request.status_code
+        body_json = request.json()
+
+        if code == 200:
+            return body_json
+
+        raise Exception(body_json['error'])
+
     def bulk_create(self, attributes: list) -> int:
-        # attributes in "ValueList", "ManagedTag", "Hierarchy", "MultiValueList" formats are ignored because
-        # the values are not yet copied and the api returns an error 400 with the message:
-        # "Object reference not set to an instance of an object"
-
-        invalid_attribute_formats = ["ValueList", "ManagedTag", "Hierarchy", "MultiValueList"]
-        valid_attributes = [attr for attr in attributes if attr['format'] not in invalid_attribute_formats]
-        invalid_attributes = [attr for attr in attributes if attr['format'] in invalid_attribute_formats]
-        invalid_attrs_name_format = list(map(lambda a: f"{a['name']}/{a['format']}", invalid_attributes))
-        logging.warning(
-            f"bulk_create - {len(invalid_attributes)} ignored attributs: {invalid_attrs_name_format} using "
-            f"an unsupported formats: {invalid_attribute_formats}")
-
-        bulk_attributes = list(map(to_bulk_item_attribute, valid_attributes))
+        bulk_attributes = list(map(to_bulk_item_attribute, attributes))
         bulks = [bulk_attributes[i:i + 50] for i in range(0, len(bulk_attributes), 50)]
 
         for bulk in bulks:
@@ -74,7 +74,30 @@ class DataGalaxyApiAttributes:
 
             raise Exception(f'Unexpected error, code: {code}')
 
-        return len(valid_attributes)
+        return len(attributes)
+
+    def create_attribute(self, attribute: dict) -> dict:
+        headers = {'Authorization': f"Bearer {self.access_token}"}
+        response = requests.post(f"{self.url}/attributes/{attribute['dataType'].lower()}", json=attribute, headers=headers)
+        code = response.status_code
+        body_json = response.json()
+
+        if code != 201:
+            raise Exception(body_json)
+
+        return body_json
+
+    def create_values(self, data_type: str, attribute_key: str, values: list) -> dict:
+        headers = {'Authorization': f"Bearer {self.access_token}"}
+        params = {'dataType': data_type.lower(), 'attributeKey': attribute_key}
+        response = requests.post(f"{self.url}/attributes/values", json=values, headers=headers, params=params)
+        code = response.status_code
+        body_json = response.json()
+
+        if code != 200:
+            raise Exception(body_json)
+
+        return body_json
 
     def delete_attribute(self, data_type: AttributeDataType, attribute_key: str) -> bool:
         logging.debug(f"delete_attribute- delete_attribute(data_type: {data_type}, attribute_key: {attribute_key})")
