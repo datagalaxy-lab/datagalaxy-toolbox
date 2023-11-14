@@ -2,7 +2,6 @@ from toolbox.api.datagalaxy_api import DataGalaxyApiAuthentication, Token
 from toolbox.api.datagalaxy_api_attributes import AttributeDataType, DataGalaxyApiAttributes
 from toolbox.commands.copy_attributes import copy_attributes
 from unittest.mock import ANY
-import pytest as pytest
 
 
 # Mocks
@@ -12,17 +11,20 @@ def list_mock_return_many_attr(self, data_type):
         return [
             {
                 'name': 'Custom Property',
-                'format': 'MultiValueList',
+                'attributeKey': 'CP',
+                'format': 'Text',
                 'description': 'New Custom property'
             },
             {
                 'name': 'Custom Property 2',
-                'format': 'MultiValueList 2',
+                'attributeKey': 'CP2',
+                'format': 'Text',
                 'description': 'New Custom property 2'
             },
             {
                 'name': 'Custom Property 3',
-                'format': 'MultiValueList 3',
+                'attributeKey': 'CP3',
+                'format': 'Text',
                 'description': 'New Custom property 3'
             }
         ]
@@ -35,7 +37,7 @@ def list_mock_return_one_common_attr(self, data_type):
         return [
             {
                 'name': 'Custom Property',
-                'format': 'MultiValueList',
+                'format': 'Text',
                 'description': 'New Custom property'
             }
         ]
@@ -47,7 +49,7 @@ def list_mock_when_duplicates(self, data_type):
     return [
         {
             'name': 'Duplicate',
-            'format': 'MultiValueList',
+            'format': 'Text',
             'description': 'New Custom property'
         }
     ]
@@ -71,16 +73,15 @@ def test_copy_attributes_when_only_one_source_attr_and_duplicates_on_target(mock
     attributes_bulk_create_mock.return_value = None
 
     # ASSERT / VERIFY
-    with pytest.raises(Exception, match='The target environment contains attributes from the source environment'):
-        copy_attributes(
+    result = copy_attributes(
             url_source='url_source',
             url_target='url_target',
             integration_token_source_value='integration_token_source',
             integration_token_target_value='integration_token_target'
         )
-
-    assert api_authenticate_mock.call_count == 2
-    assert attributes_bulk_create_mock.call_count == 0
+    assert attributes_list_mock.call_count == 16
+    assert attributes_bulk_create_mock.call_count == 1
+    assert result is None
 
 
 def test_copy_attributes_when_no_source_attr(mocker):
@@ -141,19 +142,22 @@ def test_copy_attributes_when_many_source_attrs(mocker):
     assert attributes_bulk_create_mock.call_args.args == (ANY, [
         {
             'name': 'Custom Property',
-            'format': 'MultiValueList',
+            'attributeKey': 'CP',
+            'format': 'Text',
             'description': 'New Custom property',
             'dataType': 'Common'
         },
         {
             'name': 'Custom Property 2',
-            'format': 'MultiValueList 2',
+            'attributeKey': 'CP2',
+            'format': 'Text',
             'description': 'New Custom property 2',
             'dataType': 'Common'
         },
         {
             'name': 'Custom Property 3',
-            'format': 'MultiValueList 3',
+            'attributeKey': 'CP3',
+            'format': 'Text',
             'description': 'New Custom property 3',
             'dataType': 'Common'
         }
@@ -198,7 +202,7 @@ def test_copy_attributes_when_only_one_source_attr_and_empty_target(mocker):
     assert attributes_bulk_create_mock.call_args.args == (ANY, [
         {
             'name': 'Custom Property',
-            'format': 'MultiValueList',
+            'format': 'Text',
             'description': 'New Custom property',
             'dataType': 'Common'
         }
