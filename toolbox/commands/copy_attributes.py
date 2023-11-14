@@ -31,15 +31,13 @@ def copy_attributes(url_source: str,
         f'copy_attributes - {len(custom_target_attributes)} custom attributes found on client_space: {target_client_space_id}')
 
     duplicates = find_duplicates(custom_source_attributes, custom_target_attributes)
-    if len(duplicates) == 0:
-        attributes_created_count = attributes_api_target.bulk_create(custom_source_attributes)
-        logging.info(
-            f'copy_attributes - {attributes_created_count} custom attributes copied from client_space: '
-            f'{source_client_space_id} to client_space: {target_client_space_id}')
-        return attributes_created_count
-
-    logging.warning(f'copy_attributes - duplicates found on client_space: {target_client_space_id}: {duplicates}')
-    raise Exception('The target environment contains attributes from the source environment')
+    logging.warning(f'copy_attributes - {len(duplicates)} duplicates found on client_space: {target_client_space_id}: {duplicates}')
+    source_attributes_to_create = list(filter(lambda x: x['name'] not in duplicates, custom_source_attributes))
+    attributes_created_count = attributes_api_target.bulk_create(source_attributes_to_create)
+    logging.info(
+        f'copy_attributes - {attributes_created_count} custom attributes copied from client_space: '
+        f'{source_client_space_id} to client_space: {target_client_space_id}')
+    return attributes_created_count
 
 
 def copy_attributes_parse(subparsers):
