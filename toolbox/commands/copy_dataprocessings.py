@@ -1,3 +1,4 @@
+import logging
 from typing import Optional
 
 from toolbox.api.datagalaxy_api import get_access_token, Token
@@ -37,26 +38,32 @@ def copy_dataprocessings(url_source: str,
     if target_workspace is None:
         raise Exception(f'workspace {workspace_target_name} does not exist')
 
-    dataprocessings_on_source_workspace = DataGalaxyApiDataprocessings(
+    source_dataprocessings_api = DataGalaxyApiDataprocessings(
         url=url_source,
         access_token=source_access_token,
         workspace=source_workspace
     )
-    dataprocessings_on_target_workspace = DataGalaxyApiDataprocessings(
+    target_dataprocessings_api = DataGalaxyApiDataprocessings(
         url=url_target,
         access_token=target_access_token,
         workspace=target_workspace
     )
 
-    # fetching dataprocessings from source workspace
-    workspace_source_dataprocessings = dataprocessings_on_source_workspace.list_dataprocessings(workspace_source_name)
+    # fetch dataprocessings from source workspace
+    source_dataprocessings = source_dataprocessings_api.list_dataprocessings(workspace_source_name)
 
-    for dp in workspace_source_dataprocessings:
-        dp_index = workspace_source_dataprocessings.index(dp)
-        items = dataprocessings_on_source_workspace.list_dataprocessing_items(workspace_name=workspace_source_name, parent_id=dp['id'])
+    # fetch dataprocessingsitems for each dp in source workspace (but not dataflows)
+    for dp in source_dataprocessings:
+        if dp['type'] == "DataFlow":
+            logging.info('DataFlow found, it has no item')
+            continue
+        dp_index = source_dataprocessings.index(dp)
+        items = source_dataprocessings_api.list_dataprocessing_items(workspace_name=workspace_source_name, parent_id=dp['id'])
         for item in items:
             item_index = items.index(item)
-            del items[item_index]['summary']
+            # some objects have no summary, and some have a summary but set to "None" which raises an error in the API somehow
+            if "summary" in items[item_index] and items[item_index]['summary'] is None:
+                items[item_index]['summary'] = ""
             # for inputs and outputs, property 'path' must be named 'entityPath'
             for input in item['inputs']:
                 input_index = item['inputs'].index(input)
@@ -64,12 +71,12 @@ def copy_dataprocessings(url_source: str,
             for output in item['outputs']:
                 output_index = item['outputs'].index(output)
                 items[item_index]['outputs'][output_index]['entityPath'] = output['path']
-        workspace_source_dataprocessings[dp_index]['dataProcessingItems'] = items
+        source_dataprocessings[dp_index]['dataProcessingItems'] = items
 
-    # copying the dataprocessings on the target workspace
-    return dataprocessings_on_target_workspace.bulk_upsert_dataprocessings_tree(
+    # copy the dataprocessings on the target workspace
+    return target_dataprocessings_api.bulk_upsert_dataprocessings_tree(
         workspace_name=workspace_target_name,
-        dataprocessings=workspace_source_dataprocessings
+        dataprocessings=source_dataprocessings
     )
 
 
