@@ -21,25 +21,51 @@ def copy_attributes(url_source: str,
     custom_source_attributes = custom_attributes(attributes_api_source)
     logging.debug(f"copy_attributes - custom_source_attributes: {custom_source_attributes}")
     logging.info(
-        f'copy_attributes - {len(custom_source_attributes)} custom attributes found on client_space: {source_client_space_id}')
+        f'copy_attributes - {len(custom_source_attributes)} custom attributes found on source client_space: {source_client_space_id}')
     if len(custom_source_attributes) == 0:
-        logging.warning(f'copy_attributes - no attribute found on client_space: {source_client_space_id}, aborting.')
+        logging.warning(f'copy_attributes - no custom attribute found on client_space: {source_client_space_id}, aborting.')
         return 0
 
     custom_target_attributes = custom_attributes(attributes_api_target)
     logging.info(
-        f'copy_attributes - {len(custom_target_attributes)} custom attributes found on client_space: {target_client_space_id}')
+        f'copy_attributes - {len(custom_target_attributes)} custom attributes found on target client_space: {target_client_space_id}')
 
     duplicates = find_duplicates(custom_source_attributes, custom_target_attributes)
-    if len(duplicates) == 0:
-        attributes_created_count = attributes_api_target.bulk_create(custom_source_attributes)
-        logging.info(
-            f'copy_attributes - {attributes_created_count} custom attributes copied from client_space: '
-            f'{source_client_space_id} to client_space: {target_client_space_id}')
-        return attributes_created_count
+    logging.warning(f'copy_attributes - {len(duplicates)} duplicates found on client_space: {target_client_space_id}: {duplicates}')
+    source_attributes_to_create = list(filter(lambda x: x['name'] not in duplicates, custom_source_attributes))
 
-    logging.warning(f'copy_attributes - duplicates found on client_space: {target_client_space_id}: {duplicates}')
-    raise Exception('The target environment contains attributes from the source environment')
+    # These attribute formats require a special behavior : we need to fetch their values and create them in a separate API call
+    specific_attribute_formats = ["ValueList", "ManagedTag", "Hierarchy", "MultiValueList"]
+
+    source_attributes_to_create_without_values = list(filter(lambda x: x['format'] not in specific_attribute_formats, source_attributes_to_create))
+    source_attributes_to_create_with_values = list(filter(lambda x: x['format'] in specific_attribute_formats, source_attributes_to_create))
+
+    # Bulk create attributes that do not have values
+    attributes_created_count = attributes_api_target.bulk_create(source_attributes_to_create_without_values)
+    logging.info(
+        f'copy_attributes - {attributes_created_count} custom attributes copied from client_space: '
+        f'{source_client_space_id} to client_space: {target_client_space_id}')
+
+    for attribute in source_attributes_to_create_with_values:
+        format = attribute['format']
+        data_type = attribute['dataType']
+        attribute_key = attribute['attributeKey']
+        # Fetch values from source
+        values = attributes_api_source.list_values(data_type=data_type, attribute_key=attribute_key)
+        # ValueList expects an array of strings
+        if format == "ValueList":
+            values = list(map(lambda x: x['key'], values))
+        # Create attribute in target
+        new_attribute = attributes_api_target.create_attribute(attribute=attribute)
+        # Create values in target
+        attribute_key = new_attribute['attributeKey']
+        attributes_api_target.create_values(data_type=data_type, attribute_key=attribute_key, values=values)
+
+    logging.info(
+        f'copy_attributes - {len(source_attributes_to_create_with_values)} custom attributes (with values) copied from client_space: '
+        f'{source_client_space_id} to client_space: {target_client_space_id}')
+
+    return attributes_created_count
 
 
 def copy_attributes_parse(subparsers):
