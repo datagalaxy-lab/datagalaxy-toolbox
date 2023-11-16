@@ -7,7 +7,10 @@ Toolbox allows you to perform admin operations on [DataGalaxy](https://www.datag
 ## Features
 - **Copy attributes** from a source client space to a target client space.
 - **Delete attributes** on client space.
+- **Copy technologies** from a source client space to a target client space.
 - **Copy glossary** properties from a workspace to another.
+- **Copy dictionary** objects from a workspace to another.
+- **Copy dataprocessings** from a workspace to another.
 - **Copy usages** from a workspace to another.
 
 ## Installation
@@ -43,18 +46,36 @@ To delete attributes from the target client space to allow copying run:
 datagalaxy-toolbox.exe delete-attributes [-h] --url URL --token TOKEN
 ```
 
-
-
 #### copy-attributes
 
 ```
 datagalaxy-toolbox.exe copy-attributes [-h] --url-source URL_SOURCE --url-target URL_TARGET --token-source TOKEN_SOURCE --token-target TOKEN_TARGET
 ```
 
+#### copy-technologies
+
+```
+datagalaxy-toolbox.exe copy-technologies [-h] --url-source URL_SOURCE --url-target URL_TARGET --token-source TOKEN_SOURCE --token-target TOKEN_TARGET
+```
+
 #### copy-glossary
 
 ```
 datagalaxy-toolbox.exe copy-glossary [-h] --url-source URL_SOURCE --token-source TOKEN_SOURCE [--url-target URL_TARGET] [--token-target TOKEN_TARGET] --workspace-source WORKSPACE_SOURCE --workspace-target WORKSPACE_TARGET
+```
+ `--url-target` and `--token-target` are optional if the copy is made on the same client space.
+
+#### copy-dictionary
+
+```
+datagalaxy-toolbox.exe copy-dictionary [-h] --url-source URL_SOURCE --token-source TOKEN_SOURCE [--url-target URL_TARGET] [--token-target TOKEN_TARGET] --workspace-source WORKSPACE_SOURCE --workspace-target WORKSPACE_TARGET
+```
+ `--url-target` and `--token-target` are optional if the copy is made on the same client space.
+
+#### copy-dataprocessings
+
+```
+datagalaxy-toolbox.exe copy-dataprocessings [-h] --url-source URL_SOURCE --token-source TOKEN_SOURCE [--url-target URL_TARGET] [--token-target TOKEN_TARGET] --workspace-source WORKSPACE_SOURCE --workspace-target WORKSPACE_TARGET
 ```
  `--url-target` and `--token-target` are optional if the copy is made on the same client space.
 
