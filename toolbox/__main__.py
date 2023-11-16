@@ -3,6 +3,7 @@ import logging
 import sys
 
 from toolbox.commands.copy_attributes import copy_attributes_parse, copy_attributes
+from toolbox.commands.copy_technologies import copy_technologies_parse, copy_technologies
 from toolbox.commands.copy_usages import copy_usages, copy_usages_parse
 from toolbox.commands.copy_dataprocessings import copy_dataprocessings, copy_dataprocessings_parse
 from toolbox.commands.delete_attributes import delete_attributes_parse, delete_attributes
@@ -23,6 +24,7 @@ def run(args):
                         action="store_true")
     subparsers = parser.add_subparsers(help='sub-command help', dest='subparsers_name')
     copy_attributes_parse(subparsers)
+    copy_technologies_parse(subparsers)
     delete_attributes_parse(subparsers)
     copy_glossary_parse(subparsers)
     copy_usages_parse(subparsers)
@@ -43,6 +45,17 @@ def run(args):
             result.token_target
         )
         logging.info("<<< copy_attributes")
+        return 0
+
+    if result.subparsers_name == 'copy-technologies':
+        logging.info(">>> copy_technologies")
+        copy_technologies(
+            result.url_source,
+            result.url_target,
+            result.token_source,
+            result.token_target
+        )
+        logging.info("<<< copy_technologies")
         return 0
 
     if result.subparsers_name == 'delete-attributes':
