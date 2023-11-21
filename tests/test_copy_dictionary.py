@@ -1,7 +1,6 @@
 from toolbox.api.datagalaxy_api_dictionary import DataGalaxyApiDictionary
 from toolbox.commands.copy_dictionary import copy_dictionary
 from toolbox.api.datagalaxy_api_workspaces import DataGalaxyApiWorkspace
-
 from toolbox.api.datagalaxy_api import DataGalaxyApiAuthentication, Token
 import pytest as pytest
 

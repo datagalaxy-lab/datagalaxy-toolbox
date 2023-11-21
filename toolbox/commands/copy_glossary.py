@@ -1,9 +1,9 @@
 import logging
 from typing import Optional
 
-from toolbox.api.datagalaxy_api import get_access_token, Token
-from toolbox.api.datagalaxy_api_workspaces import DataGalaxyApiWorkspace, DataGalaxyApiGlossary, \
-    DataGalaxyBulkResult
+from toolbox.api.datagalaxy_api import get_access_token, Token, DataGalaxyBulkResult
+from toolbox.api.datagalaxy_api_glossary import DataGalaxyApiGlossary
+from toolbox.api.datagalaxy_api_workspaces import DataGalaxyApiWorkspace
 
 
 def copy_glossary(url_source: str,
@@ -41,7 +41,7 @@ def copy_glossary(url_source: str,
             access_token=source_access_token,
             workspace=workspace_source
         )
-        workspace_source_glossary_properties = glossary_on_source_workspace.list_glossary_properties(
+        workspace_source_glossary_properties = glossary_on_source_workspace.list_properties(
             workspace_source_name)
         logging.info(f'glossary properties on source workspace : {workspace_source_glossary_properties}')
         # on copie ces propriétés sur le workspace_target

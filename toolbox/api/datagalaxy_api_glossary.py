@@ -3,24 +3,24 @@ import requests as requests
 from toolbox.api.datagalaxy_api import DataGalaxyBulkResult, to_bulk_tree
 
 
-class DataGalaxyApiUsages:
+class DataGalaxyApiGlossary:
     def __init__(self, url: str, access_token: str, workspace: dict):
         self.url = url
         self.access_token = access_token
         self.workspace = workspace
 
-    def list_usages(self, workspace_name: str) -> list:
+    def list_properties(self, workspace_name: str) -> list:
         if not self.workspace["isVersioningEnabled"]:
             version_id = self.workspace['defaultVersionId']
             params = {'versionId': version_id, 'includeAttributes': 'true'}
             headers = {'Authorization': f"Bearer {self.access_token}"}
-            response = requests.get(f"{self.url}/usages", params=params, headers=headers)
+            response = requests.get(f"{self.url}/properties", params=params, headers=headers)
             code = response.status_code
             body_json = response.json()
             if code == 200:
                 logging.info(
-                    f'list_usages - {len(body_json["results"])} usages found on '
-                    f'workspace: {workspace_name}')
+                    f'list_properties - {len(body_json["results"])} properties found on '
+                    f'workspace {workspace_name} :')
                 result = []
                 result = result + body_json['results']
                 next_page = body_json["next_page"]
@@ -37,17 +37,18 @@ class DataGalaxyApiUsages:
 
             raise Exception(f'Unexpected error, code: {code}')
 
-        raise Exception('Workspace with versioning enabled are currently not supported.')
+        elif self.workspace["isVersioningEnabled"]:
+            raise Exception('pour l instant on ne gere pas le versioning')
 
-    def bulk_upsert_usages_tree(self, workspace_name: str, usages: list) -> DataGalaxyBulkResult:
+    def bulk_upsert_property_tree(self, workspace_name: str, properties: list) -> DataGalaxyBulkResult:
         # Existing entities are updated and non-existing ones are created.
-        usages_ok_to_bulk = to_bulk_tree(usages)
-        logging.info(f'usages_ok_to_bulk: {usages_ok_to_bulk}')
+        properties_ok_to_bulk = to_bulk_tree(properties)
+        logging.info(f'properties_ok_to_bulk: {properties_ok_to_bulk}')
 
         if not self.workspace["isVersioningEnabled"]:
             version_id = self.workspace['defaultVersionId']
             headers = {'Authorization': f"Bearer {self.access_token}"}
-            response = requests.post(f"{self.url}/usages/bulktree/{version_id}", json=usages_ok_to_bulk,
+            response = requests.post(f"{self.url}/properties/bulktree/{version_id}", json=properties_ok_to_bulk,
                                      headers=headers)
             code = response.status_code
             body_json = response.json()
@@ -56,7 +57,7 @@ class DataGalaxyApiUsages:
                                               deleted=body_json["deleted"], unchanged=body_json["unchanged"],
                                               updated=body_json["updated"])
                 logging.info(
-                    f'bulk_upsert_usages_tree - {result.total} usages copied on workspace {workspace_name}:'
+                    f'bulk_upsert_property_tree - {result.total} properties copied on workspace {workspace_name}:'
                     f'{result.created} were created, {result.updated} were updated, '
                     f'{result.deleted} were deleted and {result.unchanged} were unchanged')
                 return result
@@ -66,4 +67,5 @@ class DataGalaxyApiUsages:
 
             raise Exception(f'Unexpected error, code: {code}')
 
-        raise Exception('Workspace with versioning enabled are currently not supported.')
+        elif self.workspace["isVersioningEnabled"]:
+            raise Exception('pour l instant on ne sait pas si on accepte le versioning')

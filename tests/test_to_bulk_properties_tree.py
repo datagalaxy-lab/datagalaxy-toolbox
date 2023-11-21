@@ -1,4 +1,4 @@
-from toolbox.api.datagalaxy_api_workspaces import to_bulk_tree
+from toolbox.api.datagalaxy_api import to_bulk_tree
 
 
 def test_transform_ok():

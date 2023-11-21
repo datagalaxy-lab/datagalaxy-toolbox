@@ -1,8 +1,8 @@
 from typing import Optional
 
-from toolbox.api.datagalaxy_api import get_access_token, Token
+from toolbox.api.datagalaxy_api import get_access_token, Token, DataGalaxyBulkResult
 from toolbox.api.datagalaxy_api_dictionary import DataGalaxyApiDictionary
-from toolbox.api.datagalaxy_api_workspaces import DataGalaxyApiWorkspace, DataGalaxyBulkResult
+from toolbox.api.datagalaxy_api_workspaces import DataGalaxyApiWorkspace
 
 
 def copy_dictionary(url_source: str,

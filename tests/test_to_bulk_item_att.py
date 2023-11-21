@@ -1,5 +1,4 @@
 import pytest as pytest
-
 from toolbox.api.datagalaxy_api_attributes import to_bulk_item_attribute
 
 
