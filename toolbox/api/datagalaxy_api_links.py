@@ -11,8 +11,6 @@ class DataGalaxyApiLinks:
 
     def bulk_create_links(self, workspace_name: str, links: list) -> DataGalaxyBulkResult:
         # Creating links between entities based on their path
-        logging.info(f'bulk_create_links: {links}')
-
         if self.workspace["isVersioningEnabled"]:
             raise Exception('Workspace with versioning enabled are currently not supported.')
 
