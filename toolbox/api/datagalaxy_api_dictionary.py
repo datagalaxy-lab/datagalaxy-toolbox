@@ -11,9 +11,12 @@ class DataGalaxyApiDictionary:
         self.access_token = access_token
         self.workspace = workspace
 
-    def list_sources(self, workspace_name: str) -> list:
+    def list_sources(self, workspace_name: str, include_links=False) -> list:
         version_id = self.workspace['defaultVersionId']
-        params = {'versionId': version_id, 'includeAttributes': 'true'}
+        if include_links is True:
+            params = {'versionId': version_id, 'includeAttributes': 'false', 'includeLinks': 'true'}
+        else:
+            params = {'versionId': version_id, 'includeAttributes': 'true'}
         headers = {'Authorization': f"Bearer {self.access_token}"}
         response = requests.get(f"{self.url}/sources", params=params, headers=headers)
         code = response.status_code
@@ -38,9 +41,12 @@ class DataGalaxyApiDictionary:
             result = result + body_json['results']
         return result
 
-    def list_containers(self, workspace_name: str) -> list:
+    def list_containers(self, workspace_name: str, include_links=False) -> list:
         version_id = self.workspace['defaultVersionId']
-        params = {'versionId': version_id, 'includeAttributes': 'true'}
+        if include_links is True:
+            params = {'versionId': version_id, 'includeAttributes': 'false', 'includeLinks': 'true'}
+        else:
+            params = {'versionId': version_id, 'includeAttributes': 'true'}
         headers = {'Authorization': f"Bearer {self.access_token}"}
         response = requests.get(f"{self.url}/containers", params=params, headers=headers)
         code = response.status_code
@@ -65,9 +71,12 @@ class DataGalaxyApiDictionary:
             result = result + body_json['results']
         return result
 
-    def list_structures(self, workspace_name: str) -> list:
+    def list_structures(self, workspace_name: str, include_links=False) -> list:
         version_id = self.workspace['defaultVersionId']
-        params = {'versionId': version_id, 'includeAttributes': 'true'}
+        if include_links is True:
+            params = {'versionId': version_id, 'includeAttributes': 'false', 'includeLinks': 'true'}
+        else:
+            params = {'versionId': version_id, 'includeAttributes': 'true'}
         headers = {'Authorization': f"Bearer {self.access_token}"}
         response = requests.get(f"{self.url}/structures", params=params, headers=headers)
         code = response.status_code
@@ -92,9 +101,12 @@ class DataGalaxyApiDictionary:
             result = result + body_json['results']
         return result
 
-    def list_fields(self, workspace_name: str) -> list:
+    def list_fields(self, workspace_name: str, include_links=False) -> list:
         version_id = self.workspace['defaultVersionId']
-        params = {'versionId': version_id, 'includeAttributes': 'true'}
+        if include_links is True:
+            params = {'versionId': version_id, 'includeAttributes': 'false', 'includeLinks': 'true'}
+        else:
+            params = {'versionId': version_id, 'includeAttributes': 'true'}
         headers = {'Authorization': f"Bearer {self.access_token}"}
         response = requests.get(f"{self.url}/fields", params=params, headers=headers)
         code = response.status_code
