@@ -135,6 +135,15 @@ class DataGalaxyPathWithType:
     path_type: str
 
 
+def handle_timeserie(property: dict) -> dict:
+    # Temporary solution: only copy the latest value of the TimeSerie
+    for key, value in property.items():
+        if isinstance(value, dict):
+            if 'lastEntry' in value:
+                # Expected format : "Date::Value"
+                property[key] = f"{value['lastEntry']['date']}::{value['lastEntry']['value']}"
+
+
 def to_bulk_tree(properties: list) -> list:
     nodes_map = {}
     for property in properties:
@@ -148,6 +157,7 @@ def to_bulk_tree(properties: list) -> list:
         path = property['path']
         path_type = property['typePath']
         del_useless_keys(property)
+        handle_timeserie(property)
 
         # TRANSFORM to bulk item
         path_segments = path[1:].split(PATH_SEPARATOR)
