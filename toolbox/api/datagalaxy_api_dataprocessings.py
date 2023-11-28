@@ -45,7 +45,7 @@ class DataGalaxyApiDataprocessings:
         if code != 200:
             raise Exception(body_json['error'])
         logging.info(
-            f'list_dataprocessing_items - {len(body_json["results"])} dataprocessing_items found on '
+            f'list_dataprocessing_items - {len(body_json["results"])} dataprocessingitems found on '
             f'workspace: {workspace_name} for parent_id: {parent_id}')
         result = []
         result = result + body_json['results']
