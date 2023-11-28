@@ -1,7 +1,6 @@
 import logging
-
 import requests as requests
-from toolbox.api.datagalaxy_api_workspaces import DataGalaxyBulkResult, to_bulk_tree
+from toolbox.api.datagalaxy_api import DataGalaxyBulkResult, to_bulk_tree
 
 
 class DataGalaxyApiDataprocessings:

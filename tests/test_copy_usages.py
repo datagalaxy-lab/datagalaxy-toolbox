@@ -1,8 +1,7 @@
 from toolbox.api.datagalaxy_api_usages import DataGalaxyApiUsages
 from toolbox.commands.copy_usages import copy_usages
-from toolbox.api.datagalaxy_api_workspaces import DataGalaxyApiWorkspace, DataGalaxyBulkResult
-
-from toolbox.api.datagalaxy_api import DataGalaxyApiAuthentication, Token
+from toolbox.api.datagalaxy_api_workspaces import DataGalaxyApiWorkspace
+from toolbox.api.datagalaxy_api import DataGalaxyApiAuthentication, Token, DataGalaxyBulkResult
 import pytest as pytest
 
 

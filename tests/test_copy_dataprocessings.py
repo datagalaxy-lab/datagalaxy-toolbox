@@ -1,7 +1,6 @@
 from toolbox.api.datagalaxy_api_dataprocessings import DataGalaxyApiDataprocessings
 from toolbox.commands.copy_dataprocessings import copy_dataprocessings
 from toolbox.api.datagalaxy_api_workspaces import DataGalaxyApiWorkspace
-
 from toolbox.api.datagalaxy_api import DataGalaxyApiAuthentication, Token
 import pytest as pytest
 

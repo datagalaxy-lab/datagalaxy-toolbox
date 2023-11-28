@@ -1,4 +1,4 @@
-from toolbox.api.datagalaxy_api_workspaces import del_useless_keys
+from toolbox.api.datagalaxy_api import del_useless_keys
 
 
 def test_del_useless_keys_with_too_many_keys():

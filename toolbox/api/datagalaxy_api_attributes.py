@@ -1,6 +1,5 @@
 import logging
 from enum import Enum
-
 import requests as requests
 
 

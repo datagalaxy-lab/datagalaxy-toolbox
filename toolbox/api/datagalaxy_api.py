@@ -60,3 +60,80 @@ def get_access_token(url: str, integration_token: Token):
     client_space_id = integration_token.get_client_space_id()
     logging.info(f'get_access_token - Authenticating [url: {url} , client_space: {client_space_id}]')
     return access_token
+
+
+@dataclass(frozen=True)
+class DataGalaxyBulkResult:
+    total: int
+    created: int
+    deleted: int
+    unchanged: int
+    updated: int
+
+
+BULK_PROPERTIES_FIELDS_TO_REMOVE = ['path', 'typePath', 'location', 'attributes', 'objectUrl', 'childrenCount',
+                                    'lastModificationTime', 'creationTime']
+
+
+def del_useless_keys(members: dict):
+    for key in list(members.keys()):
+        if key in BULK_PROPERTIES_FIELDS_TO_REMOVE:
+            del members[key]
+        else:
+            pass
+
+    return members
+
+
+PATH_SEPARATOR = "\\"
+
+
+@dataclass(frozen=True)
+class DataGalaxyPathWithType:
+    path: str
+    path_type: str
+
+
+def handle_timeserie(property: dict) -> dict:
+    # Temporary solution: only copy the latest value of the TimeSerie
+    for key, value in property.items():
+        if isinstance(value, dict):
+            if 'lastEntry' in value:
+                # Expected format : "Date::Value"
+                property[key] = f"{value['lastEntry']['date']}::{value['lastEntry']['value']}"
+
+
+def to_bulk_tree(properties: list) -> list:
+    nodes_map = {}
+    for property in properties:
+        nodes_map[DataGalaxyPathWithType(property['path'], property['typePath'])] = property
+
+    for property in properties:
+
+        if 'attributes' in property:
+            property.update(property['attributes'])
+
+        path = property['path']
+        path_type = property['typePath']
+        del_useless_keys(property)
+        handle_timeserie(property)
+
+        # TRANSFORM to bulk item
+        path_segments = path[1:].split(PATH_SEPARATOR)
+        if len(path_segments) > 1:
+            parent_path_segments = path_segments[:-1]
+            parent_path_type_segments = path_type[1:].split(PATH_SEPARATOR)[:-1]
+            parent_path = f"{PATH_SEPARATOR}{PATH_SEPARATOR.join(parent_path_segments)}"
+            parent_path_type = f"{PATH_SEPARATOR}{PATH_SEPARATOR.join(parent_path_type_segments)}"
+            parent = nodes_map[DataGalaxyPathWithType(parent_path, parent_path_type)]
+            if 'children' in parent:
+                parent['children'].append(property)
+            else:
+                parent['children'] = [property]
+
+    root_nodes = []
+    for key, value in nodes_map.items():
+        if len(key.path[1:].split(PATH_SEPARATOR)) == 1:
+            root_nodes.append(value)
+
+    return root_nodes
