@@ -65,12 +65,14 @@ def copy_dataprocessings(url_source: str,
             if "summary" in items[item_index] and items[item_index]['summary'] is None:
                 items[item_index]['summary'] = ""
             # for inputs and outputs, property 'path' must be named 'entityPath'
-            for input in item['inputs']:
-                input_index = item['inputs'].index(input)
-                items[item_index]['inputs'][input_index]['entityPath'] = input['path']
-            for output in item['outputs']:
-                output_index = item['outputs'].index(output)
-                items[item_index]['outputs'][output_index]['entityPath'] = output['path']
+            if 'inputs' in item:
+                for input in item['inputs']:
+                    input_index = item['inputs'].index(input)
+                    items[item_index]['inputs'][input_index]['entityPath'] = input['path']
+            if 'outputs' in item:
+                for output in item['outputs']:
+                    output_index = item['outputs'].index(output)
+                    items[item_index]['outputs'][output_index]['entityPath'] = output['path']
         source_dataprocessings[dp_index]['dataProcessingItems'] = items
 
     # copy the dataprocessings on the target workspace
