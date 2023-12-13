@@ -42,7 +42,6 @@ class DataGalaxyApiUsages:
     def bulk_upsert_usages_tree(self, workspace_name: str, usages: list) -> DataGalaxyBulkResult:
         # Existing entities are updated and non-existing ones are created.
         usages_ok_to_bulk = to_bulk_tree(usages)
-        logging.info(f'usages_ok_to_bulk: {usages_ok_to_bulk}')
 
         if not self.workspace["isVersioningEnabled"]:
             version_id = self.workspace['defaultVersionId']

@@ -1,4 +1,3 @@
-import logging
 from typing import Optional
 
 from toolbox.api.datagalaxy_api import get_access_token, Token, DataGalaxyBulkResult
@@ -44,7 +43,6 @@ def copy_usages(url_source: str,
     if workspaces_api_on_target_env.get_workspace(workspace_target_name):
         # on récupère les usages du workspace_source
         workspace_source_usages = usages_on_source_workspace.list_usages(workspace_source_name)
-        logging.info(f'Usages on source workspace : {workspace_source_usages}')
 
         # on copie ces usages sur le workspace_target
         return usages_on_target_workspace.bulk_upsert_usages_tree(
