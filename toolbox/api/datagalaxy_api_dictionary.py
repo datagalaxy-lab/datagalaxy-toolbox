@@ -125,6 +125,11 @@ class DataGalaxyApiDictionary:
 
         # We need to make a post request for each source tree
         for source_bulk in bulk_tree:
+            # We cannot send a bulktree containing only a source without children (rejected by the API)
+            if 'children' not in source_bulk or len(source_bulk['children']) < 1:
+                logging.warn(f'bulk_upsert_sources_tree - Cannot create a source without children : {source_bulk}')
+                continue
+
             version_id = self.workspace['defaultVersionId']
             headers = {'Authorization': f"Bearer {self.access_token}"}
             response = requests.post(f"{self.url}/sources/bulktree/{version_id}", json=source_bulk,
