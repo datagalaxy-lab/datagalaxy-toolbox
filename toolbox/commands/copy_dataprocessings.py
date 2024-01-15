@@ -73,6 +73,13 @@ def copy_dataprocessings(url_source: str,
                 for output in item['outputs']:
                     output_index = item['outputs'].index(output)
                     items[item_index]['outputs'][output_index]['entityPath'] = output['path']
+            # there is a problem with dpi types, we must map them to the correct value (accepted by the API)
+            if item['type'] == "Search":
+                items[item_index]['type'] = "Lookup"
+            if item['type'] == "ConstantVariable":
+                items[item_index]['type'] = "Variable"
+            if item['type'] == "Calculation":
+                items[item_index]['type'] = "AnalyticalCalculation"
         source_dataprocessings[dp_index]['dataProcessingItems'] = items
 
     # copy the dataprocessings on the target workspace
