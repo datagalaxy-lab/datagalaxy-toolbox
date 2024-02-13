@@ -3,6 +3,15 @@ import requests as requests
 from toolbox.api.datagalaxy_api import DataGalaxyBulkResult, to_bulk_tree
 
 
+def remove_technology_code(node):
+    if 'technologyCode' in node:
+        del node['technologyCode']
+
+    if 'children' in node:
+        for child in node['children']:
+            remove_technology_code(child)
+
+
 class DataGalaxyApiUsages:
     def __init__(self, url: str, access_token: str, workspace: dict):
         self.url = url
@@ -43,6 +52,13 @@ class DataGalaxyApiUsages:
         # Existing entities are updated and non-existing ones are created.
         usages_ok_to_bulk = to_bulk_tree(usages)
         logging.info(f'usages_ok_to_bulk: {usages_ok_to_bulk}')
+
+        # If a parent usage has a technology, it is necessary to delete the "technologyCode" property in every children
+        # Otherwise the API returns an error. Only the parent can hold the "technologyCode" property
+        for usage_tree in usages_ok_to_bulk:
+            if 'technologyCode' in usage_tree:
+                for children in usage_tree['children']:
+                    remove_technology_code(children)
 
         if not self.workspace["isVersioningEnabled"]:
             version_id = self.workspace['defaultVersionId']
