@@ -98,9 +98,11 @@ def handle_timeserie(property: dict) -> dict:
     # Temporary solution: only copy the latest value of the TimeSerie
     for key, value in property.items():
         if isinstance(value, dict):
-            if 'lastEntry' in value:
+            if 'lastEntry' in value and value['lastEntry'] is not None:
                 # Expected format : "Date::Value"
-                property[key] = f"{value['lastEntry']['date']}::{value['lastEntry']['value']}"
+                last_entry = value['lastEntry']
+                if 'date' in last_entry and 'value' in last_entry:
+                    property[key] = f"{last_entry['date']}::{last_entry['value']}"
 
 
 def to_bulk_tree(properties: list) -> list:
