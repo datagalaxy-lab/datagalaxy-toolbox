@@ -15,17 +15,16 @@ jobs:
     name: Build Linux
     strategy:
       matrix:
-        python.version:
-        - 3.9
+        python-version: ["3.9"]
     runs-on: ubuntu-latest
     steps:
     - name: Initialize CodeQL
       uses: github/codeql-action/init@v3
     - uses: actions/checkout@v4
-    - name: Setup Python ${{ matrix.python.version }}
+    - name: Setup Python ${{ matrix.python-version }}
       uses: actions/setup-python@v5
       with:
-        python-version: ${{ matrix.python.version }}
+        python-version: ${{ matrix.python-version }}
     - uses: actions/checkout@v4
     - name: Install dependencies
       run: pip3 install -r requirements.txt
@@ -39,15 +38,14 @@ jobs:
     name: Build Windows
     strategy:
       matrix:
-        python.version:
-        - 3.9
+        python-version: ["3.9"]
     runs-on: windows-2022
     steps:
     - uses: actions/checkout@v4
-    - name: Setup Python ${{ matrix.python.version }}
+    - name: Setup Python ${{ matrix.python-version }}
       uses: actions/setup-python@v5
       with:
-        python-version: ${{ matrix.python.version }}
+        python-version: ${{ matrix.python-version }}
     - uses: actions/checkout@v4
     - name: Install dependencies
       run: pip3 install -r requirements.txt
