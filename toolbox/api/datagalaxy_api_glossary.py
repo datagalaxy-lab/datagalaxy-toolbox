@@ -9,10 +9,13 @@ class DataGalaxyApiGlossary:
         self.access_token = access_token
         self.workspace = workspace
 
-    def list_properties(self, workspace_name: str) -> list:
+    def list_properties(self, workspace_name: str, include_links=False) -> list:
         if not self.workspace["isVersioningEnabled"]:
             version_id = self.workspace['defaultVersionId']
-            params = {'versionId': version_id, 'includeAttributes': 'true'}
+            if include_links is True:
+                params = {'versionId': version_id, 'includeAttributes': 'false', 'includeLinks': 'true'}
+            else:
+                params = {'versionId': version_id, 'includeAttributes': 'true'}
             headers = {'Authorization': f"Bearer {self.access_token}"}
             response = requests.get(f"{self.url}/properties", params=params, headers=headers)
             code = response.status_code
