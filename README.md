@@ -12,6 +12,7 @@ Toolbox allows you to perform admin operations on [DataGalaxy](https://www.datag
 - **Copy glossary** properties from a workspace to another.
 - **Delete glossary** of a workspace.
 - **Copy dictionary** objects from a workspace to another.
+- **Delete dictionary** of a workspace.
 - **Copy dataprocessings** from a workspace to another.
 - **Copy usages** from a workspace to another.
 - **Delete usages** of a workspace.
@@ -98,6 +99,12 @@ datagalaxy-toolbox.exe delete-glossary [-h] --url URL --token TOKEN --workspace 
 datagalaxy-toolbox.exe copy-dictionary [-h] --url-source URL_SOURCE --token-source TOKEN_SOURCE [--url-target URL_TARGET] [--token-target TOKEN_TARGET] --workspace-source WORKSPACE_SOURCE --workspace-target WORKSPACE_TARGET
 ```
  `--url-target` and `--token-target` are optional if the copy is made on the same client space.
+
+#### delete-dictionary
+
+```
+datagalaxy-toolbox.exe delete-dictionary [-h] --url URL --token TOKEN --workspace WORKSPACE
+```
 
 #### copy-dataprocessings
 

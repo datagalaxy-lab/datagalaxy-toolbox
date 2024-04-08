@@ -12,6 +12,7 @@ from toolbox.commands.delete_attributes import delete_attributes_parse, delete_a
 from toolbox.commands.copy_glossary import copy_glossary_parse, copy_glossary
 from toolbox.commands.delete_glossary import delete_glossary_parse, delete_glossary
 from toolbox.commands.copy_dictionary import copy_dictionary, copy_dictionary_parse
+from toolbox.commands.delete_dictionary import delete_dictionary, delete_dictionary_parse
 from toolbox.commands.copy_links import copy_links, copy_links_parse
 
 
@@ -36,6 +37,7 @@ def run(args):
     copy_usages_parse(subparsers)
     delete_usages_parse(subparsers)
     copy_dictionary_parse(subparsers)
+    delete_dictionary_parse(subparsers)
     copy_dataprocessings_parse(subparsers)
     copy_links_parse(subparsers)
     # parse some argument lists
@@ -116,6 +118,12 @@ def run(args):
         copy_dictionary(result.url_source, result.url_target, result.token_source, result.token_target,
                         result.workspace_source, result.workspace_target)
         logging.info("<<< copy_dictionary")
+        return 0
+
+    if result.subparsers_name == 'delete-dictionary':
+        logging.info(">>> delete_dictionary")
+        delete_dictionary(result.url, result.token, result.workspace)
+        logging.info("<<< delete_dictionary")
         return 0
 
     if result.subparsers_name == 'copy-dataprocessings':
