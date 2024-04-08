@@ -6,6 +6,7 @@ from toolbox.commands.copy_attributes import copy_attributes_parse, copy_attribu
 from toolbox.commands.copy_technologies import copy_technologies_parse, copy_technologies
 from toolbox.commands.copy_screens import copy_screens_parse, copy_screens
 from toolbox.commands.copy_usages import copy_usages, copy_usages_parse
+from toolbox.commands.delete_usages import delete_usages_parse, delete_usages
 from toolbox.commands.copy_dataprocessings import copy_dataprocessings, copy_dataprocessings_parse
 from toolbox.commands.delete_attributes import delete_attributes_parse, delete_attributes
 from toolbox.commands.copy_glossary import copy_glossary_parse, copy_glossary
@@ -33,6 +34,7 @@ def run(args):
     copy_glossary_parse(subparsers)
     delete_glossary_parse(subparsers)
     copy_usages_parse(subparsers)
+    delete_usages_parse(subparsers)
     copy_dictionary_parse(subparsers)
     copy_dataprocessings_parse(subparsers)
     copy_links_parse(subparsers)
@@ -101,6 +103,12 @@ def run(args):
         copy_usages(result.url_source, result.url_target, result.token_source, result.token_target,
                     result.workspace_source, result.workspace_target)
         logging.info("<<< copy_usages")
+        return 0
+
+    if result.subparsers_name == 'delete-usages':
+        logging.info(">>> delete_usages")
+        delete_usages(result.url, result.token, result.workspace)
+        logging.info("<<< delete_usages")
         return 0
 
     if result.subparsers_name == 'copy-dictionary':

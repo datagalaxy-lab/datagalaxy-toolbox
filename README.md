@@ -14,6 +14,7 @@ Toolbox allows you to perform admin operations on [DataGalaxy](https://www.datag
 - **Copy dictionary** objects from a workspace to another.
 - **Copy dataprocessings** from a workspace to another.
 - **Copy usages** from a workspace to another.
+- **Delete usages** of a workspace.
 - **Copy links** from a workspace to another.
 
 ## Installation
@@ -111,6 +112,12 @@ datagalaxy-toolbox.exe copy-dataprocessings [-h] --url-source URL_SOURCE --token
 datagalaxy-toolbox.exe copy-usages [-h] --url-source URL_SOURCE --token-source TOKEN_SOURCE [--url-target URL_TARGET] [--token-target TOKEN_TARGET] --workspace-source WORKSPACE_SOURCE --workspace-target WORKSPACE_TARGET
 ```
  `--url-target` and `--token-target` are optional if the copy is made on the same client space.
+
+#### delete-usages
+
+```
+datagalaxy-toolbox.exe delete-usages [-h] --url URL --token TOKEN --workspace WORKSPACE
+```
 
 #### copy-links
 
