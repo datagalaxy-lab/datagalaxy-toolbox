@@ -10,6 +10,7 @@ Toolbox allows you to perform admin operations on [DataGalaxy](https://www.datag
 - **Copy technologies** from a source client space to a target client space.
 - **Copy screens** from a source client space or workspace to a target client space or workspace.
 - **Copy glossary** properties from a workspace to another.
+- **Delete glossary** of a workspace.
 - **Copy dictionary** objects from a workspace to another.
 - **Copy dataprocessings** from a workspace to another.
 - **Copy usages** from a workspace to another.
@@ -83,6 +84,12 @@ datagalaxy-toolbox.exe copy-screens [-h] --url-source URL_SOURCE [--url-target U
 datagalaxy-toolbox.exe copy-glossary [-h] --url-source URL_SOURCE --token-source TOKEN_SOURCE [--url-target URL_TARGET] [--token-target TOKEN_TARGET] --workspace-source WORKSPACE_SOURCE --workspace-target WORKSPACE_TARGET
 ```
  `--url-target` and `--token-target` are optional if the copy is made on the same client space.
+
+#### delete-glossary
+
+```
+datagalaxy-toolbox.exe delete-glossary [-h] --url URL --token TOKEN --workspace WORKSPACE
+```
 
 #### copy-dictionary
 
