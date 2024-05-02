@@ -40,5 +40,6 @@ def test_copy_dataprocessings_when_workspace_source_does_not_exist(mocker):
             url_target='url_target',
             token_target='token_target',
             workspace_source_name='workspace_source',
-            workspace_target_name='workspace_target'
+            workspace_target_name='workspace_target',
+            tag_value=None
         )

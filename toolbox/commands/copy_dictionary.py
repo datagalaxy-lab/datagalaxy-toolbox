@@ -10,7 +10,8 @@ def copy_dictionary(url_source: str,
                     token_source: str,
                     token_target: Optional[str],
                     workspace_source_name: str,
-                    workspace_target_name: str) -> DataGalaxyBulkResult:
+                    workspace_target_name: str,
+                    tag_value: Optional[str]) -> DataGalaxyBulkResult:
     if token_target is None:
         token_target = token_source
 
@@ -50,25 +51,25 @@ def copy_dictionary(url_source: str,
     )
 
     # fetching sources from workspace_source
-    workspace_source_sources = dictionary_on_source_workspace.list_sources(workspace_source_name)
-    workspace_source_all = workspace_source_sources
+    source_sources = dictionary_on_source_workspace.list_sources(workspace_source_name)
+    source_all = source_sources
 
     # fetching containers from workspace_source
-    workspace_source_containers = dictionary_on_source_workspace.list_containers(workspace_source_name)
-    workspace_source_all = workspace_source_all + workspace_source_containers
+    source_containers = dictionary_on_source_workspace.list_containers(workspace_source_name)
+    source_all = source_all + source_containers
 
     # fetching structures from workspace_source
-    workspace_source_structures = dictionary_on_source_workspace.list_structures(workspace_source_name)
-    workspace_source_all = workspace_source_all + workspace_source_structures
+    source_structures = dictionary_on_source_workspace.list_structures(workspace_source_name)
+    source_all = source_all + source_structures
 
     # fetching fields from workspace_source
-    workspace_source_fields = dictionary_on_source_workspace.list_fields(workspace_source_name)
-    workspace_source_all = workspace_source_all + workspace_source_fields
+    source_fields = dictionary_on_source_workspace.list_fields(workspace_source_name)
+    source_all = source_all + source_fields
 
     # copy all the dictionary in workspace_target
     return dictionary_on_target_workspace.bulk_upsert_sources_tree(
         workspace_name=workspace_target_name,
-        sources=workspace_source_all
+        sources=source_all
     )
 
 
@@ -102,4 +103,8 @@ def copy_dictionary_parse(subparsers):
         '--workspace-target',
         type=str,
         help='workspace target name',
-        required=True)
+        required=True),
+    copy_dictionary_parse.add_argument(
+        '--tag-value',
+        type=str,
+        help='select tag value to filter objects')

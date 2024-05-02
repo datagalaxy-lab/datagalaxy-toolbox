@@ -51,7 +51,8 @@ def test_copy_usages_when_no_usage_on_target(mocker):
         url_target='url_target',
         token_target='token_target',
         workspace_source_name='workspace_source',
-        workspace_target_name='workspace_target'
+        workspace_target_name='workspace_target',
+        tag_value=None
     )
 
     # ASSERT / VERIFY
@@ -98,7 +99,8 @@ def test_copy_usages_same_client_space(mocker):
         url_target=None,
         token_target=None,
         workspace_source_name='workspace_source',
-        workspace_target_name='workspace_target'
+        workspace_target_name='workspace_target',
+        tag_value=None
     )
 
     # ASSERT / VERIFY
@@ -136,5 +138,6 @@ def test_copy_usages_when_workspace_target_does_not_exist(mocker):
             url_target='url_target',
             token_target='token_target',
             workspace_source_name='workspace_source',
-            workspace_target_name='workspace_target'
+            workspace_target_name='workspace_target',
+            tag_value=None
         )

@@ -10,7 +10,8 @@ def copy_glossary(url_source: str,
                   token_source: str,
                   token_target: Optional[str],
                   workspace_source_name: str,
-                  workspace_target_name: str) -> DataGalaxyBulkResult:
+                  workspace_target_name: str,
+                  tag_value: Optional[str]) -> DataGalaxyBulkResult:
     if token_target is None:
         token_target = token_source
 
@@ -42,6 +43,7 @@ def copy_glossary(url_source: str,
         )
         workspace_source_glossary_properties = glossary_on_source_workspace.list_properties(
             workspace_source_name)
+
         # on copie ces propriétés sur le workspace_target
         glossary_on_target_workspace = DataGalaxyApiGlossary(
             url=url_target,
@@ -87,3 +89,7 @@ def copy_glossary_parse(subparsers):
         type=str,
         help='workspace target name',
         required=True)
+    copy_glossary_parse.add_argument(
+        '--tag-value',
+        type=str,
+        help='select tag value to filter objects')
