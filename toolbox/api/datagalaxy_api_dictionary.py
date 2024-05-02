@@ -131,15 +131,32 @@ class DataGalaxyApiDictionary:
             result = result + body_json['results']
         return result
 
+    def create_source(self, workspace_name: str, source: dict) -> int:
+        # Create a single source
+        if self.workspace["isVersioningEnabled"]:
+            raise Exception('Workspace with versioning enabled are currently not supported.')
+
+        version_id = self.workspace['defaultVersionId']
+        headers = {'Authorization': f"Bearer {self.access_token}"}
+        response = requests.post(f"{self.url}/sources/{version_id}", json=source,
+                                 headers=headers)
+        code = response.status_code
+        body_json = response.json()
+        if code != 201:
+            raise Exception(body_json['error'])
+
+        logging.info(f'{source["name"]} was copied on workspace {workspace_name}')
+        return 0
+
     def bulk_upsert_sources_tree(self, workspace_name: str, sources: list) -> DataGalaxyBulkResult:
         # Existing entities are updated and non-existing ones are created.
         bulk_tree = to_bulk_tree(sources)
 
         # We need to make a post request for each source tree
         for source_bulk in bulk_tree:
-            # We cannot send a bulktree containing only a source without children (rejected by the API)
+            # We cannot send a bulktree containing only a source without children (rejected by the API), we have to use another route
             if 'children' not in source_bulk or len(source_bulk['children']) < 1:
-                logging.warn(f'bulk_upsert_sources_tree - Cannot create a source without children : {source_bulk}')
+                self.create_source(workspace_name, source_bulk)
                 continue
 
             version_id = self.workspace['defaultVersionId']
