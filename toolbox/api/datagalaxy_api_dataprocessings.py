@@ -1,6 +1,6 @@
 import logging
 import requests as requests
-from toolbox.api.datagalaxy_api import DataGalaxyBulkResult, to_bulk_tree
+from toolbox.api.datagalaxy_api import DataGalaxyBulkResult, to_bulk_tree, remove_technology_code
 
 
 class DataGalaxyApiDataprocessings:
@@ -60,6 +60,13 @@ class DataGalaxyApiDataprocessings:
     def bulk_upsert_dataprocessings_tree(self, workspace_name: str, dataprocessings: list) -> DataGalaxyBulkResult:
         # Existing entities are updated and non-existing ones are created.
         bulk_tree = to_bulk_tree(dataprocessings)
+
+        # If a parent has a technology, it is necessary to delete the "technologyCode" property in every children
+        # Otherwise the API returns an error. Only the parent can hold the "technologyCode" property
+        for tree in bulk_tree:
+            if 'technologyCode' in tree and 'children' in tree:
+                for children in tree['children']:
+                    remove_technology_code(children)
 
         version_id = self.workspace['defaultVersionId']
         headers = {'Authorization': f"Bearer {self.access_token}"}

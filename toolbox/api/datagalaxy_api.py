@@ -105,6 +105,15 @@ def handle_timeserie(property: dict) -> dict:
                     property[key] = f"{last_entry['date']}::{last_entry['value']}"
 
 
+def remove_technology_code(node):
+    if 'technologyCode' in node:
+        del node['technologyCode']
+
+    if 'children' in node:
+        for child in node['children']:
+            remove_technology_code(child)
+
+
 def to_bulk_tree(properties: list) -> list:
     nodes_map = {}
     for property in properties:

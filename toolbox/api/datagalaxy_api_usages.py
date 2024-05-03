@@ -1,15 +1,6 @@
 import logging
 import requests as requests
-from toolbox.api.datagalaxy_api import DataGalaxyBulkResult, to_bulk_tree
-
-
-def remove_technology_code(node):
-    if 'technologyCode' in node:
-        del node['technologyCode']
-
-    if 'children' in node:
-        for child in node['children']:
-            remove_technology_code(child)
+from toolbox.api.datagalaxy_api import DataGalaxyBulkResult, to_bulk_tree, remove_technology_code
 
 
 class DataGalaxyApiUsages:
