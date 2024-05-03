@@ -86,7 +86,8 @@ def copy_dataprocessings(url_source: str,
     # copy the dataprocessings on the target workspace
     return target_dataprocessings_api.bulk_upsert_dataprocessings_tree(
         workspace_name=workspace_target_name,
-        dataprocessings=source_dataprocessings
+        dataprocessings=source_dataprocessings,
+        tag_value=tag_value
     )
 
 

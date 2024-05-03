@@ -115,6 +115,10 @@ def remove_technology_code(node):
 
 
 def to_bulk_tree(properties: list) -> list:
+    if properties is None or len(properties) == 0:
+        logging.warn("Cannot bulk upsert an empty list of objects")
+        return 0
+
     nodes_map = {}
     for property in properties:
         nodes_map[DataGalaxyPathWithType(property['path'], property['typePath'])] = property
@@ -148,3 +152,19 @@ def to_bulk_tree(properties: list) -> list:
             root_nodes.append(value)
 
     return root_nodes
+
+
+def prune_tree(tree, target_tag):
+    # Function to recursively prune the tree
+    def recursive_prune(node):
+        if 'children' in node:
+            # Recursively prune children
+            node['children'] = [child for child in node['children'] if recursive_prune(child)]
+            # Keep this node if it has the target tag or any of its children have the tag
+            return 'tags' in node and target_tag in node['tags'] or any(recursive_prune(child) for child in node['children'])
+        # Keep leaf nodes only if they have the target tag
+        return 'tags' in node and target_tag in node['tags']
+
+    # Prune the tree recursively
+    pruned_tree = [node for node in tree if recursive_prune(node)]
+    return pruned_tree

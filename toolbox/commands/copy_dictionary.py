@@ -69,7 +69,8 @@ def copy_dictionary(url_source: str,
     # copy all the dictionary in workspace_target
     return dictionary_on_target_workspace.bulk_upsert_sources_tree(
         workspace_name=workspace_target_name,
-        sources=source_all
+        sources=source_all,
+        tag_value=tag_value
     )
 
 

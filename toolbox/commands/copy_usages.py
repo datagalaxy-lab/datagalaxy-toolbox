@@ -48,7 +48,8 @@ def copy_usages(url_source: str,
         # on copie ces usages sur le workspace_target
         return usages_on_target_workspace.bulk_upsert_usages_tree(
             workspace_name=workspace_target_name,
-            usages=workspace_source_usages
+            usages=workspace_source_usages,
+            tag_value=tag_value
         )
 
     raise Exception(f'workspace {workspace_target_name} does not exist')

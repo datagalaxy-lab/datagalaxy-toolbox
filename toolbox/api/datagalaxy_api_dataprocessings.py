@@ -1,6 +1,7 @@
 import logging
 import requests as requests
-from toolbox.api.datagalaxy_api import DataGalaxyBulkResult, to_bulk_tree, remove_technology_code
+from toolbox.api.datagalaxy_api import DataGalaxyBulkResult, to_bulk_tree, prune_tree, remove_technology_code
+from typing import Optional
 
 
 class DataGalaxyApiDataprocessings:
@@ -57,9 +58,12 @@ class DataGalaxyApiDataprocessings:
             result = result + body_json['results']
         return result
 
-    def bulk_upsert_dataprocessings_tree(self, workspace_name: str, dataprocessings: list) -> DataGalaxyBulkResult:
+    def bulk_upsert_dataprocessings_tree(self, workspace_name: str, dataprocessings: list, tag_value: Optional[str]) -> DataGalaxyBulkResult:
         # Existing entities are updated and non-existing ones are created.
         bulk_tree = to_bulk_tree(dataprocessings)
+
+        if tag_value is not None:
+            bulk_tree = prune_tree(bulk_tree, tag_value)
 
         # If a parent has a technology, it is necessary to delete the "technologyCode" property in every children
         # Otherwise the API returns an error. Only the parent can hold the "technologyCode" property

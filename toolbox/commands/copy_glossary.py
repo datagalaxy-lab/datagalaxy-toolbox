@@ -52,7 +52,8 @@ def copy_glossary(url_source: str,
         )
         return glossary_on_target_workspace.bulk_upsert_property_tree(
             workspace_name=workspace_target_name,
-            properties=workspace_source_glossary_properties
+            properties=workspace_source_glossary_properties,
+            tag_value=tag_value
         )
 
     raise Exception(f'workspace {workspace_target_name} does not exist')
