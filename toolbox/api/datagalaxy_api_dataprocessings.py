@@ -13,7 +13,7 @@ class DataGalaxyApiDataprocessings:
 
     def list_dataprocessings(self, workspace_name: str) -> list:
         version_id = self.workspace['defaultVersionId']
-        params = {'versionId': version_id, 'includeAttributes': 'false'}
+        params = {'versionId': version_id, 'includeAttributes': 'true'}
         headers = {'Authorization': f"Bearer {self.access_token}"}
         response = requests.get(f"{self.url}/dataProcessing", params=params, headers=headers)
         code = response.status_code
@@ -36,7 +36,7 @@ class DataGalaxyApiDataprocessings:
 
     def list_dataprocessing_items(self, workspace_name: str, parent_id: str) -> list:
         version_id = self.workspace['defaultVersionId']
-        params = {'versionId': version_id, 'parentId': parent_id, 'includeAttributes': 'false'}
+        params = {'versionId': version_id, 'parentId': parent_id, 'includeAttributes': 'true'}
         headers = {'Authorization': f"Bearer {self.access_token}"}
         response = requests.get(f"{self.url}/dataProcessingItem", params=params, headers=headers)
         code = response.status_code
