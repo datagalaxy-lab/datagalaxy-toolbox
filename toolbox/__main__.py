@@ -6,10 +6,14 @@ from toolbox.commands.copy_attributes import copy_attributes_parse, copy_attribu
 from toolbox.commands.copy_technologies import copy_technologies_parse, copy_technologies
 from toolbox.commands.copy_screens import copy_screens_parse, copy_screens
 from toolbox.commands.copy_usages import copy_usages, copy_usages_parse
+from toolbox.commands.delete_usages import delete_usages_parse, delete_usages
 from toolbox.commands.copy_dataprocessings import copy_dataprocessings, copy_dataprocessings_parse
+from toolbox.commands.delete_dataprocessings import delete_dataprocessings, delete_dataprocessings_parse
 from toolbox.commands.delete_attributes import delete_attributes_parse, delete_attributes
 from toolbox.commands.copy_glossary import copy_glossary_parse, copy_glossary
+from toolbox.commands.delete_glossary import delete_glossary_parse, delete_glossary
 from toolbox.commands.copy_dictionary import copy_dictionary, copy_dictionary_parse
+from toolbox.commands.delete_dictionary import delete_dictionary, delete_dictionary_parse
 from toolbox.commands.copy_links import copy_links, copy_links_parse
 
 
@@ -30,9 +34,13 @@ def run(args):
     copy_screens_parse(subparsers)
     delete_attributes_parse(subparsers)
     copy_glossary_parse(subparsers)
+    delete_glossary_parse(subparsers)
     copy_usages_parse(subparsers)
+    delete_usages_parse(subparsers)
     copy_dictionary_parse(subparsers)
+    delete_dictionary_parse(subparsers)
     copy_dataprocessings_parse(subparsers)
+    delete_dataprocessings_parse(subparsers)
     copy_links_parse(subparsers)
     # parse some argument lists
     result = parser.parse_args(args)
@@ -88,11 +96,23 @@ def run(args):
         logging.info("<<< copy_glossary")
         return 0
 
+    if result.subparsers_name == 'delete-glossary':
+        logging.info(">>> delete_glossary")
+        delete_glossary(result.url, result.token, result.workspace)
+        logging.info("<<< delete_glossary")
+        return 0
+
     if result.subparsers_name == 'copy-usages':
         logging.info(">>> copy_usages")
         copy_usages(result.url_source, result.url_target, result.token_source, result.token_target,
                     result.workspace_source, result.workspace_target)
         logging.info("<<< copy_usages")
+        return 0
+
+    if result.subparsers_name == 'delete-usages':
+        logging.info(">>> delete_usages")
+        delete_usages(result.url, result.token, result.workspace)
+        logging.info("<<< delete_usages")
         return 0
 
     if result.subparsers_name == 'copy-dictionary':
@@ -102,11 +122,23 @@ def run(args):
         logging.info("<<< copy_dictionary")
         return 0
 
+    if result.subparsers_name == 'delete-dictionary':
+        logging.info(">>> delete_dictionary")
+        delete_dictionary(result.url, result.token, result.workspace)
+        logging.info("<<< delete_dictionary")
+        return 0
+
     if result.subparsers_name == 'copy-dataprocessings':
         logging.info(">>> copy_dataprocessings")
         copy_dataprocessings(result.url_source, result.url_target, result.token_source, result.token_target,
                              result.workspace_source, result.workspace_target)
         logging.info("<<< copy_dataprocessings")
+        return 0
+
+    if result.subparsers_name == 'delete-dataprocessings':
+        logging.info(">>> delete_dataprocessings")
+        delete_dataprocessings(result.url, result.token, result.workspace)
+        logging.info("<<< delete_dataprocessings")
         return 0
 
     if result.subparsers_name == 'copy-links':

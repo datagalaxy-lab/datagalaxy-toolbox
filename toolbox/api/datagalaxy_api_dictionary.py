@@ -179,3 +179,18 @@ class DataGalaxyApiDictionary:
                 raise Exception(body_json['error'])
 
         return 200
+
+    def delete_sources(self, workspace_name: str, ids: list) -> DataGalaxyBulkResult:
+        if self.workspace["isVersioningEnabled"]:
+            raise Exception('Versionned workspaces are not supported')
+
+        version_id = self.workspace['defaultVersionId']
+        headers = {'Authorization': f"Bearer {self.access_token}"}
+        response = requests.delete(f"{self.url}/sources/bulk/{version_id}",
+                                   json=ids,
+                                   headers=headers)
+        code = response.status_code
+        body_json = response.json()
+        if code != 200:
+            raise Exception(body_json['error'])
+        return body_json
