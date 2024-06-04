@@ -11,7 +11,8 @@ def copy_dataprocessings(url_source: str,
                          token_source: str,
                          token_target: Optional[str],
                          workspace_source_name: str,
-                         workspace_target_name: str) -> DataGalaxyBulkResult:
+                         workspace_target_name: str,
+                         tag_value: Optional[str]) -> DataGalaxyBulkResult:
     if token_target is None:
         token_target = token_source
 
@@ -69,10 +70,14 @@ def copy_dataprocessings(url_source: str,
                 for input in item['inputs']:
                     input_index = item['inputs'].index(input)
                     items[item_index]['inputs'][input_index]['entityPath'] = input['path']
+            else:
+                items[item_index]['inputs'] = []
             if 'outputs' in item:
                 for output in item['outputs']:
                     output_index = item['outputs'].index(output)
                     items[item_index]['outputs'][output_index]['entityPath'] = output['path']
+            else:
+                items[item_index]['outputs'] = []
             # there is a problem with dpi types, we must map them to the correct value (accepted by the API)
             if item['type'] == "Search":
                 items[item_index]['type'] = "Lookup"
@@ -85,7 +90,8 @@ def copy_dataprocessings(url_source: str,
     # copy the dataprocessings on the target workspace
     return target_dataprocessings_api.bulk_upsert_dataprocessings_tree(
         workspace_name=workspace_target_name,
-        dataprocessings=source_dataprocessings
+        dataprocessings=source_dataprocessings,
+        tag_value=tag_value
     )
 
 
@@ -119,4 +125,8 @@ def copy_dataprocessings_parse(subparsers):
         '--workspace-target',
         type=str,
         help='workspace target name',
-        required=True)
+        required=True),
+    copy_dataprocessings_parse.add_argument(
+        '--tag-value',
+        type=str,
+        help='select tag value to filter objects')

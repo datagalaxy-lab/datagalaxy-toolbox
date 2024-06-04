@@ -1,15 +1,7 @@
 import logging
 import requests as requests
-from toolbox.api.datagalaxy_api import DataGalaxyBulkResult, to_bulk_tree
-
-
-def remove_technology_code(node):
-    if 'technologyCode' in node:
-        del node['technologyCode']
-
-    if 'children' in node:
-        for child in node['children']:
-            remove_technology_code(child)
+from toolbox.api.datagalaxy_api import DataGalaxyBulkResult, to_bulk_tree, prune_tree, remove_technology_code
+from typing import Optional
 
 
 class DataGalaxyApiUsages:
@@ -51,9 +43,12 @@ class DataGalaxyApiUsages:
 
         raise Exception('Workspace with versioning enabled are currently not supported.')
 
-    def bulk_upsert_usages_tree(self, workspace_name: str, usages: list) -> DataGalaxyBulkResult:
+    def bulk_upsert_usages_tree(self, workspace_name: str, usages: list, tag_value: Optional[str]) -> DataGalaxyBulkResult:
         # Existing entities are updated and non-existing ones are created.
         usages_ok_to_bulk = to_bulk_tree(usages)
+
+        if tag_value is not None:
+            usages_ok_to_bulk = prune_tree(usages_ok_to_bulk, tag_value)
 
         # If a parent usage has a technology, it is necessary to delete the "technologyCode" property in every children
         # Otherwise the API returns an error. Only the parent can hold the "technologyCode" property

@@ -1,6 +1,7 @@
 import logging
 import requests as requests
-from toolbox.api.datagalaxy_api import DataGalaxyBulkResult, to_bulk_tree
+from toolbox.api.datagalaxy_api import DataGalaxyBulkResult, to_bulk_tree, prune_tree
+from typing import Optional
 
 
 class DataGalaxyApiDictionary:
@@ -148,9 +149,12 @@ class DataGalaxyApiDictionary:
         logging.info(f'{source["name"]} was copied on workspace {workspace_name}')
         return 0
 
-    def bulk_upsert_sources_tree(self, workspace_name: str, sources: list) -> DataGalaxyBulkResult:
+    def bulk_upsert_sources_tree(self, workspace_name: str, sources: list, tag_value: Optional[str]) -> DataGalaxyBulkResult:
         # Existing entities are updated and non-existing ones are created.
         bulk_tree = to_bulk_tree(sources)
+
+        if tag_value is not None:
+            bulk_tree = prune_tree(bulk_tree, tag_value)
 
         # We need to make a post request for each source tree
         for source_bulk in bulk_tree:

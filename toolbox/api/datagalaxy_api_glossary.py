@@ -1,6 +1,7 @@
 import logging
 import requests as requests
-from toolbox.api.datagalaxy_api import DataGalaxyBulkResult, to_bulk_tree
+from toolbox.api.datagalaxy_api import DataGalaxyBulkResult, to_bulk_tree, prune_tree
+from typing import Optional
 
 
 class DataGalaxyApiGlossary:
@@ -43,9 +44,12 @@ class DataGalaxyApiGlossary:
         elif self.workspace["isVersioningEnabled"]:
             raise Exception('pour l instant on ne gere pas le versioning')
 
-    def bulk_upsert_property_tree(self, workspace_name: str, properties: list) -> DataGalaxyBulkResult:
+    def bulk_upsert_property_tree(self, workspace_name: str, properties: list, tag_value: Optional[str]) -> DataGalaxyBulkResult:
         # Existing entities are updated and non-existing ones are created.
         properties_ok_to_bulk = to_bulk_tree(properties)
+
+        if tag_value is not None:
+            properties_ok_to_bulk = prune_tree(properties_ok_to_bulk, tag_value)
 
         if not self.workspace["isVersioningEnabled"]:
             version_id = self.workspace['defaultVersionId']

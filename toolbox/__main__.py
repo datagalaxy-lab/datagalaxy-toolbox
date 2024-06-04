@@ -48,6 +48,8 @@ def run(args):
         logging.getLogger().setLevel(logging.DEBUG)
         logging.info("Verbose output")
 
+    # Config
+
     if result.subparsers_name == 'copy-attributes':
         logging.info(">>> copy_attributes")
         copy_attributes(
@@ -85,14 +87,26 @@ def run(args):
 
     if result.subparsers_name == 'delete-attributes':
         logging.info(">>> delete_attributes")
-        delete_attributes(result.url, result.token)
+        delete_attributes(
+            result.url,
+            result.token
+        )
         logging.info("<<< delete_attributes")
         return 0
 
+    # Modules
+
     if result.subparsers_name == 'copy-glossary':
         logging.info(">>> copy_glossary")
-        copy_glossary(result.url_source, result.url_target, result.token_source, result.token_target,
-                      result.workspace_source, result.workspace_target)
+        copy_glossary(
+            result.url_source,
+            result.url_target,
+            result.token_source,
+            result.token_target,
+            result.workspace_source,
+            result.workspace_target,
+            result.tag_value
+        )
         logging.info("<<< copy_glossary")
         return 0
 
@@ -104,8 +118,15 @@ def run(args):
 
     if result.subparsers_name == 'copy-usages':
         logging.info(">>> copy_usages")
-        copy_usages(result.url_source, result.url_target, result.token_source, result.token_target,
-                    result.workspace_source, result.workspace_target)
+        copy_usages(
+            result.url_source,
+            result.url_target,
+            result.token_source,
+            result.token_target,
+            result.workspace_source,
+            result.workspace_target,
+            result.tag_value
+        )
         logging.info("<<< copy_usages")
         return 0
 
@@ -117,8 +138,15 @@ def run(args):
 
     if result.subparsers_name == 'copy-dictionary':
         logging.info(">>> copy_dictionary")
-        copy_dictionary(result.url_source, result.url_target, result.token_source, result.token_target,
-                        result.workspace_source, result.workspace_target)
+        copy_dictionary(
+            result.url_source,
+            result.url_target,
+            result.token_source,
+            result.token_target,
+            result.workspace_source,
+            result.workspace_target,
+            result.tag_value
+        )
         logging.info("<<< copy_dictionary")
         return 0
 
@@ -130,8 +158,15 @@ def run(args):
 
     if result.subparsers_name == 'copy-dataprocessings':
         logging.info(">>> copy_dataprocessings")
-        copy_dataprocessings(result.url_source, result.url_target, result.token_source, result.token_target,
-                             result.workspace_source, result.workspace_target)
+        copy_dataprocessings(
+            result.url_source,
+            result.url_target,
+            result.token_source,
+            result.token_target,
+            result.workspace_source,
+            result.workspace_target,
+            result.tag_value
+        )
         logging.info("<<< copy_dataprocessings")
         return 0
 
@@ -143,8 +178,14 @@ def run(args):
 
     if result.subparsers_name == 'copy-links':
         logging.info(">>> copy_links")
-        copy_links(result.url_source, result.url_target, result.token_source, result.token_target,
-                   result.workspace_source, result.workspace_target)
+        copy_links(
+            result.url_source,
+            result.url_target,
+            result.token_source,
+            result.token_target,
+            result.workspace_source,
+            result.workspace_target
+        )
         logging.info("<<< copy_links")
         return 0
 

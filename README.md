@@ -39,6 +39,7 @@ If you want to use Toolbox on Mac or Linux you need to build a binary file follo
 - `--token-target` - Integration token from target environnement
 - `--workspace-source` - Workspace source name
 - `--workspace-target` - Workspace target name
+- `--tag-value` - Filter objects on a specific tag
 
 
 
@@ -84,7 +85,7 @@ datagalaxy-toolbox.exe copy-screens [-h] --url-source URL_SOURCE [--url-target U
 #### copy-glossary
 
 ```
-datagalaxy-toolbox.exe copy-glossary [-h] --url-source URL_SOURCE --token-source TOKEN_SOURCE [--url-target URL_TARGET] [--token-target TOKEN_TARGET] --workspace-source WORKSPACE_SOURCE --workspace-target WORKSPACE_TARGET
+datagalaxy-toolbox.exe copy-glossary [-h] --url-source URL_SOURCE --token-source TOKEN_SOURCE [--url-target URL_TARGET] [--token-target TOKEN_TARGET] --workspace-source WORKSPACE_SOURCE --workspace-target WORKSPACE_TARGET [--tag-value TAG_NAME]
 ```
  `--url-target` and `--token-target` are optional if the copy is made on the same client space.
 
@@ -97,7 +98,7 @@ datagalaxy-toolbox.exe delete-glossary [-h] --url URL --token TOKEN --workspace 
 #### copy-dictionary
 
 ```
-datagalaxy-toolbox.exe copy-dictionary [-h] --url-source URL_SOURCE --token-source TOKEN_SOURCE [--url-target URL_TARGET] [--token-target TOKEN_TARGET] --workspace-source WORKSPACE_SOURCE --workspace-target WORKSPACE_TARGET
+datagalaxy-toolbox.exe copy-dictionary [-h] --url-source URL_SOURCE --token-source TOKEN_SOURCE [--url-target URL_TARGET] [--token-target TOKEN_TARGET] --workspace-source WORKSPACE_SOURCE --workspace-target WORKSPACE_TARGET [--tag-value TAG_NAME]
 ```
  `--url-target` and `--token-target` are optional if the copy is made on the same client space.
 
@@ -110,7 +111,7 @@ datagalaxy-toolbox.exe delete-dictionary [-h] --url URL --token TOKEN --workspac
 #### copy-dataprocessings
 
 ```
-datagalaxy-toolbox.exe copy-dataprocessings [-h] --url-source URL_SOURCE --token-source TOKEN_SOURCE [--url-target URL_TARGET] [--token-target TOKEN_TARGET] --workspace-source WORKSPACE_SOURCE --workspace-target WORKSPACE_TARGET
+datagalaxy-toolbox.exe copy-dataprocessings [-h] --url-source URL_SOURCE --token-source TOKEN_SOURCE [--url-target URL_TARGET] [--token-target TOKEN_TARGET] --workspace-source WORKSPACE_SOURCE --workspace-target WORKSPACE_TARGET [--tag-value TAG_NAME]
 ```
  `--url-target` and `--token-target` are optional if the copy is made on the same client space.
 
@@ -123,7 +124,7 @@ datagalaxy-toolbox.exe delete-dataprocessings [-h] --url URL --token TOKEN --wor
 #### copy-usages
 
 ```
-datagalaxy-toolbox.exe copy-usages [-h] --url-source URL_SOURCE --token-source TOKEN_SOURCE [--url-target URL_TARGET] [--token-target TOKEN_TARGET] --workspace-source WORKSPACE_SOURCE --workspace-target WORKSPACE_TARGET
+datagalaxy-toolbox.exe copy-usages [-h] --url-source URL_SOURCE --token-source TOKEN_SOURCE [--url-target URL_TARGET] [--token-target TOKEN_TARGET] --workspace-source WORKSPACE_SOURCE --workspace-target WORKSPACE_TARGET [--tag-value TAG_NAME]
 ```
  `--url-target` and `--token-target` are optional if the copy is made on the same client space.
 
