@@ -58,7 +58,7 @@ class DataGalaxyApiUsages:
         # If a parent usage has a technology, it is necessary to delete the "technologyCode" property in every children
         # Otherwise the API returns an error. Only the parent can hold the "technologyCode" property
         for usage_tree in usages_ok_to_bulk:
-            if 'technologyCode' in usage_tree:
+            if 'technologyCode' in usage_tree and 'children' in usage_tree:
                 for children in usage_tree['children']:
                     remove_technology_code(children)
 
