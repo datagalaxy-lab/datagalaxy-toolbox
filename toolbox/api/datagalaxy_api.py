@@ -20,7 +20,15 @@ class Token:
             options={"verify_signature": False},
             algorithms=["HS256"]
         )
-        client_space_id = decode_token["cid"]
+        # old auth
+        if "cid" in decode_token:
+            client_space_id = decode_token["cid"]
+        # authv2
+        elif "dg_client_id" in decode_token:
+            client_space_id = decode_token["dg_client_id"]
+        else:
+            raise Exception('Error while decoding the token')
+
         return client_space_id
 
 
