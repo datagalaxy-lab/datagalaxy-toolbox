@@ -23,6 +23,15 @@ class DataGalaxyBulkResult:
     updated: int
 
 
+@dataclass(frozen=True)
+class DataGalaxyPathWithType:
+    path: str
+    path_type: str
+
+
+PATH_SEPARATOR = "\\"
+
+
 BULK_PROPERTIES_FIELDS_TO_REMOVE = ['path', 'typePath', 'location', 'attributes', 'objectUrl', 'childrenCount',
                                     'lastModificationTime', 'creationTime']
 
@@ -35,15 +44,6 @@ def del_useless_keys(members: dict):
             pass
 
     return members
-
-
-PATH_SEPARATOR = "\\"
-
-
-@dataclass(frozen=True)
-class DataGalaxyPathWithType:
-    path: str
-    path_type: str
 
 
 def handle_timeserie(property: dict) -> dict:
@@ -64,6 +64,56 @@ def remove_technology_code(node):
     if 'children' in node:
         for child in node['children']:
             remove_technology_code(child)
+
+
+def build_bulktree(objects):
+    root = []  # Root level for all unique trees
+
+    def find_or_create_child(children, path_segment, type_segment, functional_path_segment, attributes):
+        # Look for a child with the same path and type
+        for child in children:
+            if child['technicalName'] == path_segment and child['type'] == type_segment:
+                # If found, update the child with additional attributes directly if they don't already exist
+                for key, value in attributes.items():
+                    child.setdefault(key, value)
+                return child
+
+        # If not found, create a new node and add it to children
+        new_child = {
+            'name': functional_path_segment,
+            'technicalName': path_segment,
+            'type': type_segment,
+            **attributes,  # Flatten all attribute key-values into this node
+            'children': []
+        }
+        children.append(new_child)
+        return new_child
+
+    for obj in objects:
+        path_segments = obj['path'][1:].split(PATH_SEPARATOR)
+        type_segments = obj['typePath'][1:].split(PATH_SEPARATOR)
+        functional_path_segments = obj['functionalPath'][1:].split(PATH_SEPARATOR)
+        attributes = obj.get('attributes')
+        handle_timeserie(obj)
+
+        current_level = root  # Start from the root level
+
+        for i, (path_segment, type_segment, functional_path_segment) in enumerate(zip(path_segments, type_segments, functional_path_segments)):
+            # Pass attributes only at the right level (the last)
+            attributes_to_send = attributes if i == (len(path_segments) - 1) else {}
+            next_node = find_or_create_child(current_level, path_segment, type_segment, functional_path_segment, attributes_to_send)
+            current_level = next_node['children']  # Move to the next level of children
+
+    return root
+
+
+def find_root_objects(objects: list) -> list:
+    root_objects = []
+    for obj in objects:
+        path_segments = obj['path'][1:].split(PATH_SEPARATOR)
+        if len(path_segments) == 1:
+            root_objects.append(obj)
+    return root_objects
 
 
 def to_bulk_tree(properties: list) -> list:
