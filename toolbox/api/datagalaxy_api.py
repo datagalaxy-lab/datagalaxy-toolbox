@@ -69,7 +69,7 @@ def remove_technology_code(node):
 def build_bulktree(objects):
     root = []  # Root level for all unique trees
 
-    def find_or_create_child(children, path_segment, type_segment, functional_path_segment, attributes):
+    def find_or_create_child(children, path_segment, type_segment, functional_path_segment, attributes, dpis):
         # Look for a child with the same path and type
         for child in children:
             if child['technicalName'] == path_segment and child['type'] == type_segment:
@@ -86,6 +86,9 @@ def build_bulktree(objects):
             **attributes,  # Flatten all attribute key-values into this node
             'children': []
         }
+        # specific for dataProcessingItems
+        if dpis is not None:
+            new_child['dataProcessingItems'] = dpis
         children.append(new_child)
         return new_child
 
@@ -94,6 +97,7 @@ def build_bulktree(objects):
         type_segments = obj['typePath'][1:].split(PATH_SEPARATOR)
         functional_path_segments = obj['functionalPath'][1:].split(PATH_SEPARATOR)
         attributes = obj.get('attributes')
+        dpis = obj.get('dataProcessingItems')
         handle_timeserie(obj)
 
         current_level = root  # Start from the root level
@@ -101,7 +105,9 @@ def build_bulktree(objects):
         for i, (path_segment, type_segment, functional_path_segment) in enumerate(zip(path_segments, type_segments, functional_path_segments)):
             # Pass attributes only at the right level (the last)
             attributes_to_send = attributes if i == (len(path_segments) - 1) else {}
-            next_node = find_or_create_child(current_level, path_segment, type_segment, functional_path_segment, attributes_to_send)
+            # Pass dpis (if exists) only at the right level (the last)
+            dpis_to_send = dpis if i == (len(path_segments) - 1) else None
+            next_node = find_or_create_child(current_level, path_segment, type_segment, functional_path_segment, attributes_to_send, dpis_to_send)
             current_level = next_node['children']  # Move to the next level of children
 
     return root
