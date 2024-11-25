@@ -1,4 +1,3 @@
-from toolbox.api.datagalaxy_api import DataGalaxyApiAuthentication, Token
 from toolbox.api.datagalaxy_api_workspaces import DataGalaxyApiWorkspace
 from toolbox.api.datagalaxy_api_dataprocessings import DataGalaxyApiDataprocessings
 from toolbox.commands.delete_dataprocessings import delete_dataprocessings
@@ -21,10 +20,6 @@ def mock_list_dataprocessings(self, data_type):
 # Scenarios
 def test_delete_dataprocessings(mocker):
     # GIVEN
-    client_space_mock = mocker.patch.object(Token, 'get_client_space_id', autospec=True)
-    client_space_mock.return_value = 'cid'
-    api_authenticate_mock = mocker.patch.object(DataGalaxyApiAuthentication, 'authenticate', autospec=True)
-    api_authenticate_mock.return_value = 'token'
     workspaces = mocker.patch.object(DataGalaxyApiWorkspace, 'list_workspaces', autospec=True)
     workspaces.return_value = ['workspace']
     workspace_mock = mocker.patch.object(DataGalaxyApiWorkspace, 'get_workspace', autospec=True)

@@ -3,13 +3,13 @@ from typing import Optional
 
 
 class DataGalaxyApiScreen:
-    def __init__(self, url: str, access_token: str, workspace: Optional[dict]):
+    def __init__(self, url: str, token: str, workspace: Optional[dict]):
         self.url = url
-        self.access_token = access_token
+        self.token = token
         self.workspace = workspace
 
     def list_screens(self) -> list:
-        headers = {'Authorization': f"Bearer {self.access_token}"}
+        headers = {'Authorization': f"Bearer {self.token}"}
         if self.workspace is None:
             response = requests.get(f"{self.url}/attributes/screens", headers=headers)
         else:
@@ -23,7 +23,7 @@ class DataGalaxyApiScreen:
         return body_json
 
     def update_screen(self, screen) -> object:
-        headers = {'Authorization': f"Bearer {self.access_token}"}
+        headers = {'Authorization': f"Bearer {self.token}"}
         dataType = screen['dataType'].lower()
         type = screen['type'].lower()
         categories = screen['categories']

@@ -3,9 +3,9 @@ from toolbox.api.datagalaxy_api import DataGalaxyBulkResult
 
 
 class DataGalaxyApiLinks:
-    def __init__(self, url: str, access_token: str, workspace: dict):
+    def __init__(self, url: str, token: str, workspace: dict):
         self.url = url
-        self.access_token = access_token
+        self.token = token
         self.workspace = workspace
 
     def bulk_create_links(self, workspace_name: str, links: list) -> DataGalaxyBulkResult:
@@ -14,7 +14,7 @@ class DataGalaxyApiLinks:
             raise Exception('Workspace with versioning enabled are currently not supported.')
 
         version_id = self.workspace['defaultVersionId']
-        headers = {'Authorization': f"Bearer {self.access_token}"}
+        headers = {'Authorization': f"Bearer {self.token}"}
         response = requests.post(f"{self.url}/links/bulktree/{version_id}", json=links,
                                  headers=headers)
         code = response.status_code

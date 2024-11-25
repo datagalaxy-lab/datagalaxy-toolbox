@@ -1,4 +1,4 @@
-from toolbox.api.datagalaxy_api import get_access_token, Token, DataGalaxyBulkResult
+from toolbox.api.datagalaxy_api import DataGalaxyBulkResult
 from toolbox.api.datagalaxy_api_usages import DataGalaxyApiUsages
 from toolbox.api.datagalaxy_api_workspaces import DataGalaxyApiWorkspace
 import logging
@@ -8,11 +8,9 @@ def delete_usages(url: str,
                   token: str,
                   workspace_name: str) -> DataGalaxyBulkResult:
 
-    integration_token = Token(token)
-    access_token = get_access_token(url, integration_token)
     workspaces_api = DataGalaxyApiWorkspace(
         url=url,
-        access_token=access_token)
+        token=token)
 
     workspace = workspaces_api.get_workspace(workspace_name)
 
@@ -22,7 +20,7 @@ def delete_usages(url: str,
     # on récupère les propriétés du usages du workspace_source
     usages_api = DataGalaxyApiUsages(
         url=url,
-        access_token=access_token,
+        token=token,
         workspace=workspace
     )
     usages = usages_api.list_usages(workspace_name)
@@ -50,7 +48,7 @@ def delete_usages_parse(subparsers):
     delete_usages_parse.add_argument(
         '--token',
         type=str,
-        help='integration token',
+        help='token',
         required=True)
     delete_usages_parse.add_argument(
         '--workspace',

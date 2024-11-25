@@ -1,21 +1,16 @@
 import logging
 
-from toolbox.api.datagalaxy_api import get_access_token, Token
 from toolbox.api.datagalaxy_api_attributes import DataGalaxyApiAttributes, custom_attributes
 
 
-def delete_attributes(url: str, integration_token_value: str) -> bool:
-    integration_token = Token(integration_token_value)
-    client_space_id = integration_token.get_client_space_id()
-
-    access_token_target = get_access_token(url, integration_token)
-    attributes_api_target = DataGalaxyApiAttributes(url=url, access_token=access_token_target)
+def delete_attributes(url: str, token: str) -> bool:
+    attributes_api_target = DataGalaxyApiAttributes(url=url, token=token)
     custom_target_attributes = custom_attributes(attributes_api_target)
     logging.info(
-        f'delete_attributes - {len(custom_target_attributes)} custom attributes found on client_space: {client_space_id}')
+        f'delete_attributes - {len(custom_target_attributes)} custom attributes found on client_space')
     attributes_api_target.delete_all_attributes(custom_target_attributes)
     logging.info(
-        f'delete_attributes - {len(custom_target_attributes)} custom attributes deleted on client_space: {client_space_id}')
+        f'delete_attributes - {len(custom_target_attributes)} custom attributes deleted on client_space')
     return True
 
 

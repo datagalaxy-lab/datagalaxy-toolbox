@@ -18,13 +18,13 @@ class AttributeDataType(Enum):
 
 
 class DataGalaxyApiAttributes:
-    def __init__(self, url: str, access_token: str):
+    def __init__(self, url: str, token: str):
         self.url = url
-        self.access_token = access_token
+        self.token = token
 
     def list(self, data_type: AttributeDataType, only_custom=True) -> list:
         params = {'dataType': data_type.value.lower()}
-        headers = {'Authorization': f"Bearer {self.access_token}"}
+        headers = {'Authorization': f"Bearer {self.token}"}
         request = requests.get(f"{self.url}/attributes", params=params, headers=headers)
         code = request.status_code
         body_json = request.json()
@@ -42,7 +42,7 @@ class DataGalaxyApiAttributes:
 
     def list_values(self, data_type: str, attribute_key: str) -> list:
         params = {'dataType': data_type.lower(), 'attributeKey': attribute_key}
-        headers = {'Authorization': f"Bearer {self.access_token}"}
+        headers = {'Authorization': f"Bearer {self.token}"}
         request = requests.get(f"{self.url}/attributes/values", params=params, headers=headers)
         code = request.status_code
         body_json = request.json()
@@ -57,7 +57,7 @@ class DataGalaxyApiAttributes:
         bulks = [bulk_attributes[i:i + 50] for i in range(0, len(bulk_attributes), 50)]
 
         for bulk in bulks:
-            headers = {'Authorization': f"Bearer {self.access_token}"}
+            headers = {'Authorization': f"Bearer {self.token}"}
             logging.debug(f"bulk_create - bulk_create(bulk: {bulk})")
             request = requests.post(f"{self.url}/attributes/bulk", json=bulk, headers=headers)
 
@@ -76,7 +76,7 @@ class DataGalaxyApiAttributes:
         return len(attributes)
 
     def create_attribute(self, attribute: dict) -> dict:
-        headers = {'Authorization': f"Bearer {self.access_token}"}
+        headers = {'Authorization': f"Bearer {self.token}"}
         response = requests.post(f"{self.url}/attributes/{attribute['dataType'].lower()}", json=attribute, headers=headers)
         code = response.status_code
         body_json = response.json()
@@ -87,7 +87,7 @@ class DataGalaxyApiAttributes:
         return body_json
 
     def create_values(self, data_type: str, attribute_key: str, values: list) -> dict:
-        headers = {'Authorization': f"Bearer {self.access_token}"}
+        headers = {'Authorization': f"Bearer {self.token}"}
         params = {'dataType': data_type.lower(), 'attributeKey': attribute_key}
         response = requests.post(f"{self.url}/attributes/values", json=values, headers=headers, params=params)
         code = response.status_code
@@ -100,7 +100,7 @@ class DataGalaxyApiAttributes:
 
     def delete_attribute(self, data_type: AttributeDataType, attribute_key: str) -> bool:
         logging.debug(f"delete_attribute- delete_attribute(data_type: {data_type}, attribute_key: {attribute_key})")
-        headers = {'Authorization': f"Bearer {self.access_token}"}
+        headers = {'Authorization': f"Bearer {self.token}"}
         request = requests.delete(f"{self.url}/attributes/{data_type}/{attribute_key}", headers=headers)
         code = request.status_code
         body_json = request.json()

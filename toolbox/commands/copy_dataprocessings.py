@@ -1,7 +1,7 @@
 import logging
 from typing import Optional
 
-from toolbox.api.datagalaxy_api import get_access_token, Token, DataGalaxyBulkResult
+from toolbox.api.datagalaxy_api import DataGalaxyBulkResult
 from toolbox.api.datagalaxy_api_dataprocessings import DataGalaxyApiDataprocessings
 from toolbox.api.datagalaxy_api_workspaces import DataGalaxyApiWorkspace
 
@@ -19,21 +19,16 @@ def copy_dataprocessings(url_source: str,
     if url_target is None:
         url_target = url_source
 
-    integration_token_source = Token(token_source)
-    integration_token_target = Token(token_target)
-    source_access_token = get_access_token(url_source, integration_token_source)
-    target_access_token = get_access_token(url_target, integration_token_target)
-
     workspaces_api_on_source_env = DataGalaxyApiWorkspace(
         url=url_source,
-        access_token=source_access_token)
+        token=token_source)
     source_workspace = workspaces_api_on_source_env.get_workspace(workspace_source_name)
     if source_workspace is None:
         raise Exception(f'workspace {workspace_source_name} does not exist')
 
     workspaces_api_on_target_env = DataGalaxyApiWorkspace(
         url=url_target,
-        access_token=target_access_token
+        token=token_target
     )
     target_workspace = workspaces_api_on_target_env.get_workspace(workspace_target_name)
     if target_workspace is None:
@@ -41,12 +36,12 @@ def copy_dataprocessings(url_source: str,
 
     source_dataprocessings_api = DataGalaxyApiDataprocessings(
         url=url_source,
-        access_token=source_access_token,
+        token=token_source,
         workspace=source_workspace
     )
     target_dataprocessings_api = DataGalaxyApiDataprocessings(
         url=url_target,
-        access_token=target_access_token,
+        token=token_target,
         workspace=target_workspace
     )
 
@@ -106,7 +101,7 @@ def copy_dataprocessings_parse(subparsers):
     copy_dataprocessings_parse.add_argument(
         '--token-source',
         type=str,
-        help='integration token source environnement',
+        help='token source environnement',
         required=True)
     copy_dataprocessings_parse.add_argument(
         '--url-target',
@@ -115,7 +110,7 @@ def copy_dataprocessings_parse(subparsers):
     copy_dataprocessings_parse.add_argument(
         '--token-target',
         type=str,
-        help='integration token target environnement (if undefined, use token source)')
+        help='token target environnement (if undefined, use token source)')
     copy_dataprocessings_parse.add_argument(
         '--workspace-source',
         type=str,
