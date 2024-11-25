@@ -2,12 +2,12 @@ import requests as requests
 
 
 class DataGalaxyApiWorkspace:
-    def __init__(self, url: str, access_token: str):
+    def __init__(self, url: str, token: str):
         self.url = url
-        self.access_token = access_token
+        self.token = token
 
     def list_workspaces(self):
-        headers = {'Authorization': f"Bearer {self.access_token}"}
+        headers = {'Authorization': f"Bearer {self.token}"}
         response = requests.get(f"{self.url}/workspaces", headers=headers)
         code = response.status_code
         body_json = response.json()

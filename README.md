@@ -32,11 +32,11 @@ If you want to use Toolbox on Mac or Linux you need to build a binary file follo
 ##### Flags
 - [optional arguments] `-h`, `--help`- show help message  
 - `--url` - URL 
-- `--token` - Integration token 
+- `--token` - Token 
 - `--url-source`- URL source environnement
 - `--url-target` - URL target environnement 
-- `--token-source` - Integration token from source environnement
-- `--token-target` - Integration token from target environnement
+- `--token-source` - Token from source environnement
+- `--token-target` - Token from target environnement
 - `--workspace-source` - Workspace source name
 - `--workspace-target` - Workspace target name
 - `--tag-value` - Filter objects on a specific tag

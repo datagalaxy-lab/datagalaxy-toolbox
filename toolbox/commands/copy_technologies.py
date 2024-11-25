@@ -1,23 +1,15 @@
 import logging
 
-from toolbox.api.datagalaxy_api import get_access_token, Token
 from toolbox.api.datagalaxy_api_technologies import DataGalaxyApiTechnology
 
 
 def copy_technologies(url_source: str,
                       url_target: str,
-                      integration_token_source_value: str,
-                      integration_token_target_value: str) -> int:
-    integration_token_source = Token(integration_token_source_value)
-    integration_token_target = Token(integration_token_target_value)
+                      token_source: str,
+                      token_target: str) -> int:
 
-    source_client_space_id = integration_token_source.get_client_space_id()
-
-    access_token_source = get_access_token(url_source, integration_token_source)
-    access_token_target = get_access_token(url_target, integration_token_target)
-
-    technologies_api_source = DataGalaxyApiTechnology(url=url_source, access_token=access_token_source)
-    technologies_api_target = DataGalaxyApiTechnology(url=url_target, access_token=access_token_target)
+    technologies_api_source = DataGalaxyApiTechnology(url=url_source, token=token_source)
+    technologies_api_target = DataGalaxyApiTechnology(url=url_target, token=token_target)
 
     source_technologies = technologies_api_source.list_technologies()
     target_technologies = technologies_api_target.list_technologies()
@@ -29,10 +21,10 @@ def copy_technologies(url_source: str,
     source_custom_technologies = list(filter(lambda technology: technology['creationUserId'] != "00000000-0000-0000-0000-000000000000", source_technologies))
 
     if len(source_custom_technologies) == 0:
-        logging.info(f'copy_technologies - No custom technology found on source client_space: {source_client_space_id}, aborting.')
+        logging.info('copy_technologies - No custom technology found on source client_space, aborting.')
         return 0
 
-    logging.info(f'copy_technologies - {len(source_custom_technologies)} custom technologies found on client_space: {source_client_space_id}')
+    logging.info(f'copy_technologies - {len(source_custom_technologies)} custom technologies found on source client_space')
 
     target_technology_codes = list(map(lambda t: t['technologyCode'], target_technologies))
 
@@ -48,7 +40,7 @@ def copy_technologies(url_source: str,
         technologies_api_target.insert_technology(source_custom)
         count_created_technologies += 1
 
-    logging.info(f'copy_technologies - {count_created_technologies} technologies were created on target client_space: {source_client_space_id}')
+    logging.info(f'copy_technologies - {count_created_technologies} technologies were created on target client_space')
     return count_created_technologies
 
 
@@ -68,10 +60,10 @@ def copy_technologies_parse(subparsers):
     copy_technologies_parse.add_argument(
         '--token-source',
         type=str,
-        help='integration source token',
+        help='source token',
         required=True)
     copy_technologies_parse.add_argument(
         '--token-target',
         type=str,
-        help='integration target token',
+        help='target token',
         required=True)

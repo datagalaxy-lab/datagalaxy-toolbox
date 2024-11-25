@@ -1,4 +1,4 @@
-from toolbox.api.datagalaxy_api import get_access_token, Token, DataGalaxyBulkResult
+from toolbox.api.datagalaxy_api import DataGalaxyBulkResult
 from toolbox.api.datagalaxy_api_glossary import DataGalaxyApiGlossary
 from toolbox.api.datagalaxy_api_workspaces import DataGalaxyApiWorkspace
 import logging
@@ -8,11 +8,9 @@ def delete_glossary(url: str,
                     token: str,
                     workspace_name: str) -> DataGalaxyBulkResult:
 
-    integration_token = Token(token)
-    access_token = get_access_token(url, integration_token)
     workspaces_api = DataGalaxyApiWorkspace(
         url=url,
-        access_token=access_token)
+        token=token)
 
     workspace = workspaces_api.get_workspace(workspace_name)
 
@@ -22,7 +20,7 @@ def delete_glossary(url: str,
     # on récupère les propriétés du glossary du workspace_source
     glossary_api = DataGalaxyApiGlossary(
         url=url,
-        access_token=access_token,
+        token=token,
         workspace=workspace
     )
     glossary_properties = glossary_api.list_properties(
@@ -51,7 +49,7 @@ def delete_glossary_parse(subparsers):
     delete_glossary_parse.add_argument(
         '--token',
         type=str,
-        help='integration token',
+        help='token',
         required=True)
     delete_glossary_parse.add_argument(
         '--workspace',

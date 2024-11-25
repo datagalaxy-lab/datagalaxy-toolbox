@@ -1,7 +1,6 @@
 import logging
 from typing import Optional
 
-from toolbox.api.datagalaxy_api import get_access_token, Token
 from toolbox.api.datagalaxy_api_screens import DataGalaxyApiScreen
 from toolbox.api.datagalaxy_api_workspaces import DataGalaxyApiWorkspace
 
@@ -18,12 +17,6 @@ def copy_screens(url_source: str,
     if url_target is None:
         url_target = url_source
 
-    integration_token_source = Token(token_source)
-    integration_token_target = Token(token_target)
-
-    source_access_token = get_access_token(url_source, integration_token_source)
-    target_access_token = get_access_token(url_target, integration_token_target)
-
     if workspace_source_name is None:
         logging.info("copy_screens - No source workspace name given : copying the clientspace's screens")
         source_workspace = None
@@ -31,7 +24,7 @@ def copy_screens(url_source: str,
         logging.info("copy_screens - Source workspace name given : copying the workspace's screens")
         workspaces_api_on_source_env = DataGalaxyApiWorkspace(
             url=url_source,
-            access_token=source_access_token
+            token=token_source
         )
         source_workspace = workspaces_api_on_source_env.get_workspace(workspace_source_name)
         if source_workspace is None:
@@ -44,14 +37,14 @@ def copy_screens(url_source: str,
         logging.info("copy_screens - Target workspace name given : writing on workspace's screens")
         workspaces_api_on_target_env = DataGalaxyApiWorkspace(
             url=url_target,
-            access_token=target_access_token
+            token=token_target
         )
         target_workspace = workspaces_api_on_target_env.get_workspace(workspace_target_name)
         if target_workspace is None:
             raise Exception(f'workspace {workspace_target_name} does not exist')
 
-    source_screens_api = DataGalaxyApiScreen(url=url_source, access_token=source_access_token, workspace=source_workspace)
-    target_screens_api = DataGalaxyApiScreen(url=url_target, access_token=target_access_token, workspace=target_workspace)
+    source_screens_api = DataGalaxyApiScreen(url=url_source, token=token_source, workspace=source_workspace)
+    target_screens_api = DataGalaxyApiScreen(url=url_target, token=token_target, workspace=target_workspace)
 
     source_screens = source_screens_api.list_screens()
     target_screens = target_screens_api.list_screens()
@@ -171,12 +164,12 @@ def copy_screens_parse(subparsers):
     copy_screens_parse.add_argument(
         '--token-source',
         type=str,
-        help='integration source token',
+        help='source token',
         required=True)
     copy_screens_parse.add_argument(
         '--token-target',
         type=str,
-        help='integration target token',
+        help='target token',
         required=False)
     copy_screens_parse.add_argument(
         '--workspace-source',
