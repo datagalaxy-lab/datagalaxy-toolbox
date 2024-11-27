@@ -5,17 +5,17 @@ from typing import Optional
 
 
 class DataGalaxyApiDataprocessings:
-    def __init__(self, url: str, access_token: str, workspace: dict):
+    def __init__(self, url: str, token: str, workspace: dict):
         if workspace["isVersioningEnabled"]:
             raise Exception('Workspace with versioning enabled are currently not supported.')
         self.url = url
-        self.access_token = access_token
+        self.token = token
         self.workspace = workspace
 
     def list_dataprocessings(self, workspace_name: str) -> list:
         version_id = self.workspace['defaultVersionId']
         params = {'versionId': version_id, 'includeAttributes': 'true'}
-        headers = {'Authorization': f"Bearer {self.access_token}"}
+        headers = {'Authorization': f"Bearer {self.token}"}
         response = requests.get(f"{self.url}/dataProcessing", params=params, headers=headers)
         code = response.status_code
         body_json = response.json()
@@ -28,7 +28,7 @@ class DataGalaxyApiDataprocessings:
         result = result + body_json['results']
         next_page = body_json["next_page"]
         while next_page is not None:
-            headers = {'Authorization': f"Bearer {self.access_token}"}
+            headers = {'Authorization': f"Bearer {self.token}"}
             response = requests.get(next_page, headers=headers)
             body_json = response.json()
             next_page = body_json["next_page"]
@@ -38,7 +38,7 @@ class DataGalaxyApiDataprocessings:
     def list_dataprocessing_items(self, workspace_name: str, parent_id: str) -> list:
         version_id = self.workspace['defaultVersionId']
         params = {'versionId': version_id, 'parentId': parent_id, 'includeAttributes': 'true'}
-        headers = {'Authorization': f"Bearer {self.access_token}"}
+        headers = {'Authorization': f"Bearer {self.token}"}
         response = requests.get(f"{self.url}/dataProcessingItem", params=params, headers=headers)
         code = response.status_code
         body_json = response.json()
@@ -51,7 +51,7 @@ class DataGalaxyApiDataprocessings:
         result = result + body_json['results']
         next_page = body_json["next_page"]
         while next_page is not None:
-            headers = {'Authorization': f"Bearer {self.access_token}"}
+            headers = {'Authorization': f"Bearer {self.token}"}
             response = requests.get(next_page, headers=headers)
             body_json = response.json()
             next_page = body_json["next_page"]
@@ -73,7 +73,7 @@ class DataGalaxyApiDataprocessings:
                     remove_technology_code(children)
 
         version_id = self.workspace['defaultVersionId']
-        headers = {'Authorization': f"Bearer {self.access_token}"}
+        headers = {'Authorization': f"Bearer {self.token}"}
         response = requests.post(f"{self.url}/dataProcessing/bulktree/{version_id}", json=bulk_tree, headers=headers)
         code = response.status_code
         body_json = response.json()
@@ -97,7 +97,7 @@ class DataGalaxyApiDataprocessings:
             raise Exception('Versionned workspaces are not supported')
 
         version_id = self.workspace['defaultVersionId']
-        headers = {'Authorization': f"Bearer {self.access_token}"}
+        headers = {'Authorization': f"Bearer {self.token}"}
         response = requests.delete(f"{self.url}/dataProcessing/bulk/{version_id}",
                                    json=ids,
                                    headers=headers)

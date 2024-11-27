@@ -1,7 +1,6 @@
 from toolbox.api.datagalaxy_api_dictionary import DataGalaxyApiDictionary
 from toolbox.commands.copy_dictionary import copy_dictionary
 from toolbox.api.datagalaxy_api_workspaces import DataGalaxyApiWorkspace
-from toolbox.api.datagalaxy_api import DataGalaxyApiAuthentication, Token
 import pytest as pytest
 
 
@@ -17,10 +16,6 @@ def mock_list_sources_on_source_workspace(self, workspace_name):
 
 def test_copy_sources_when_workspace_source_does_not_exist(mocker):
     # GIVEN
-    client_space_mock = mocker.patch.object(Token, 'get_client_space_id', autospec=True)
-    client_space_mock.return_value = 'cid'
-    api_authenticate_mock = mocker.patch.object(DataGalaxyApiAuthentication, 'authenticate', autospec=True)
-    api_authenticate_mock.return_value = 'token'
     workspaces = mocker.patch.object(DataGalaxyApiWorkspace, 'list_workspaces', autospec=True)
     workspaces.return_value = ['workspace_source']
     workspace_source_mock = mocker.patch.object(DataGalaxyApiWorkspace, 'get_workspace', autospec=True)

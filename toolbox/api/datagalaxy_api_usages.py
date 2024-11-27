@@ -5,9 +5,9 @@ from typing import Optional
 
 
 class DataGalaxyApiUsages:
-    def __init__(self, url: str, access_token: str, workspace: dict):
+    def __init__(self, url: str, token: str, workspace: dict):
         self.url = url
-        self.access_token = access_token
+        self.token = token
         self.workspace = workspace
 
     def list_usages(self, workspace_name: str, include_links=False) -> list:
@@ -17,7 +17,7 @@ class DataGalaxyApiUsages:
                 params = {'versionId': version_id, 'includeAttributes': 'false', 'includeLinks': 'true'}
             else:
                 params = {'versionId': version_id, 'includeAttributes': 'true'}
-            headers = {'Authorization': f"Bearer {self.access_token}"}
+            headers = {'Authorization': f"Bearer {self.token}"}
             response = requests.get(f"{self.url}/usages", params=params, headers=headers)
             code = response.status_code
             body_json = response.json()
@@ -29,7 +29,7 @@ class DataGalaxyApiUsages:
                 result = result + body_json['results']
                 next_page = body_json["next_page"]
                 while next_page is not None:
-                    headers = {'Authorization': f"Bearer {self.access_token}"}
+                    headers = {'Authorization': f"Bearer {self.token}"}
                     response = requests.get(next_page, headers=headers)
                     body_json = response.json()
                     next_page = body_json["next_page"]
@@ -59,7 +59,7 @@ class DataGalaxyApiUsages:
 
         if not self.workspace["isVersioningEnabled"]:
             version_id = self.workspace['defaultVersionId']
-            headers = {'Authorization': f"Bearer {self.access_token}"}
+            headers = {'Authorization': f"Bearer {self.token}"}
             response = requests.post(f"{self.url}/usages/bulktree/{version_id}", json=usages_ok_to_bulk,
                                      headers=headers)
             code = response.status_code
@@ -86,7 +86,7 @@ class DataGalaxyApiUsages:
             raise Exception('Versionned workspaces are not supported')
 
         version_id = self.workspace['defaultVersionId']
-        headers = {'Authorization': f"Bearer {self.access_token}"}
+        headers = {'Authorization': f"Bearer {self.token}"}
         response = requests.delete(f"{self.url}/usages/bulk/{version_id}",
                                    json=ids,
                                    headers=headers)

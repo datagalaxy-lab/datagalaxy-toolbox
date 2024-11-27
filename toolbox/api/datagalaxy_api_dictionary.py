@@ -5,11 +5,11 @@ from typing import Optional
 
 
 class DataGalaxyApiDictionary:
-    def __init__(self, url: str, access_token: str, workspace: dict):
+    def __init__(self, url: str, token: str, workspace: dict):
         if workspace["isVersioningEnabled"]:
             raise Exception('Workspace with versioning enabled are currently not supported.')
         self.url = url
-        self.access_token = access_token
+        self.token = token
         self.workspace = workspace
 
     def list_sources(self, workspace_name: str, include_links=False) -> list:
@@ -18,7 +18,7 @@ class DataGalaxyApiDictionary:
             params = {'versionId': version_id, 'includeAttributes': 'false', 'includeLinks': 'true'}
         else:
             params = {'versionId': version_id, 'includeAttributes': 'true'}
-        headers = {'Authorization': f"Bearer {self.access_token}"}
+        headers = {'Authorization': f"Bearer {self.token}"}
         response = requests.get(f"{self.url}/sources", params=params, headers=headers)
         code = response.status_code
         body_json = response.json()
@@ -32,7 +32,7 @@ class DataGalaxyApiDictionary:
         result = result + body_json['results']
         next_page = body_json["next_page"]
         while next_page is not None:
-            headers = {'Authorization': f"Bearer {self.access_token}"}
+            headers = {'Authorization': f"Bearer {self.token}"}
             response = requests.get(next_page, headers=headers)
             body_json = response.json()
             # We can have errors on next page too
@@ -48,7 +48,7 @@ class DataGalaxyApiDictionary:
             params = {'versionId': version_id, 'includeAttributes': 'false', 'includeLinks': 'true'}
         else:
             params = {'versionId': version_id, 'includeAttributes': 'true'}
-        headers = {'Authorization': f"Bearer {self.access_token}"}
+        headers = {'Authorization': f"Bearer {self.token}"}
         response = requests.get(f"{self.url}/containers", params=params, headers=headers)
         code = response.status_code
         body_json = response.json()
@@ -62,7 +62,7 @@ class DataGalaxyApiDictionary:
         result = result + body_json['results']
         next_page = body_json["next_page"]
         while next_page is not None:
-            headers = {'Authorization': f"Bearer {self.access_token}"}
+            headers = {'Authorization': f"Bearer {self.token}"}
             response = requests.get(next_page, headers=headers)
             body_json = response.json()
             # We can have errors on next page too
@@ -78,7 +78,7 @@ class DataGalaxyApiDictionary:
             params = {'versionId': version_id, 'includeAttributes': 'false', 'includeLinks': 'true'}
         else:
             params = {'versionId': version_id, 'includeAttributes': 'true'}
-        headers = {'Authorization': f"Bearer {self.access_token}"}
+        headers = {'Authorization': f"Bearer {self.token}"}
         response = requests.get(f"{self.url}/structures", params=params, headers=headers)
         code = response.status_code
         body_json = response.json()
@@ -92,7 +92,7 @@ class DataGalaxyApiDictionary:
         result = result + body_json['results']
         next_page = body_json["next_page"]
         while next_page is not None:
-            headers = {'Authorization': f"Bearer {self.access_token}"}
+            headers = {'Authorization': f"Bearer {self.token}"}
             response = requests.get(next_page, headers=headers)
             body_json = response.json()
             # We can have errors on next page too
@@ -108,7 +108,7 @@ class DataGalaxyApiDictionary:
             params = {'versionId': version_id, 'includeAttributes': 'false', 'includeLinks': 'true'}
         else:
             params = {'versionId': version_id, 'includeAttributes': 'true'}
-        headers = {'Authorization': f"Bearer {self.access_token}"}
+        headers = {'Authorization': f"Bearer {self.token}"}
         response = requests.get(f"{self.url}/fields", params=params, headers=headers)
         code = response.status_code
         body_json = response.json()
@@ -122,7 +122,7 @@ class DataGalaxyApiDictionary:
         result = result + body_json['results']
         next_page = body_json["next_page"]
         while next_page is not None:
-            headers = {'Authorization': f"Bearer {self.access_token}"}
+            headers = {'Authorization': f"Bearer {self.token}"}
             response = requests.get(next_page, headers=headers)
             body_json = response.json()
             # We can have errors on next page too
@@ -138,7 +138,7 @@ class DataGalaxyApiDictionary:
             raise Exception('Workspace with versioning enabled are currently not supported.')
 
         version_id = self.workspace['defaultVersionId']
-        headers = {'Authorization': f"Bearer {self.access_token}"}
+        headers = {'Authorization': f"Bearer {self.token}"}
         response = requests.post(f"{self.url}/sources/{version_id}", json=source,
                                  headers=headers)
         code = response.status_code
@@ -164,7 +164,7 @@ class DataGalaxyApiDictionary:
                 continue
 
             version_id = self.workspace['defaultVersionId']
-            headers = {'Authorization': f"Bearer {self.access_token}"}
+            headers = {'Authorization': f"Bearer {self.token}"}
             response = requests.post(f"{self.url}/sources/bulktree/{version_id}", json=source_bulk,
                                      headers=headers)
             code = response.status_code
@@ -189,7 +189,7 @@ class DataGalaxyApiDictionary:
             raise Exception('Versionned workspaces are not supported')
 
         version_id = self.workspace['defaultVersionId']
-        headers = {'Authorization': f"Bearer {self.access_token}"}
+        headers = {'Authorization': f"Bearer {self.token}"}
         response = requests.delete(f"{self.url}/sources/bulk/{version_id}",
                                    json=ids,
                                    headers=headers)

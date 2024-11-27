@@ -3,12 +3,12 @@ import requests as requests
 
 
 class DataGalaxyApiTechnology:
-    def __init__(self, url: str, access_token: str):
+    def __init__(self, url: str, token: str):
         self.url = url
-        self.access_token = access_token
+        self.token = token
 
     def list_technologies(self) -> list:
-        headers = {'Authorization': f"Bearer {self.access_token}"}
+        headers = {'Authorization': f"Bearer {self.token}"}
         response = requests.get(f"{self.url}/technologies", headers=headers)
         code = response.status_code
         body_json = response.json()
@@ -20,7 +20,7 @@ class DataGalaxyApiTechnology:
         return result
 
     def insert_technology(self, technology) -> object:
-        headers = {'Authorization': f"Bearer {self.access_token}"}
+        headers = {'Authorization': f"Bearer {self.token}"}
         response = requests.post(f"{self.url}/technologies", json=technology, headers=headers)
         code = response.status_code
         body_json = response.json()
