@@ -1,12 +1,11 @@
-from toolbox.api.datagalaxy_api import DataGalaxyBulkResult
-from toolbox.api.datagalaxy_api_dictionary import DataGalaxyApiDictionary
+from toolbox.api.datagalaxy_api_modules import DataGalaxyApiModules
 from toolbox.api.datagalaxy_api_workspaces import DataGalaxyApiWorkspace
-import logging
+from toolbox.api.datagalaxy_api import find_root_objects
 
 
 def delete_dictionary(url: str,
                       token: str,
-                      workspace_name: str) -> DataGalaxyBulkResult:
+                      workspace_name: str) -> int:
 
     workspaces_api = DataGalaxyApiWorkspace(
         url=url,
@@ -17,24 +16,25 @@ def delete_dictionary(url: str,
     if not workspace:
         raise Exception(f'workspace {workspace_name} does not exist')
 
-    # on récupère les propriétés du dictionary du workspace_source
-    dictionary_api = DataGalaxyApiDictionary(
+    # fetching objects from source workspace
+    module_api = DataGalaxyApiModules(
         url=url,
         token=token,
-        workspace=workspace
+        workspace=workspace,
+        module="Dictionary"
     )
-    sources = dictionary_api.list_sources(workspace_name)
+    objects = module_api.list_objects(
+        workspace_name)
 
-    ids = list(map(lambda object: object['id'], sources))
+    for page in objects:
+        root_objects = find_root_objects(page)
+        ids = list(map(lambda object: object['id'], root_objects))
+        module_api.delete_objects(
+            workspace_name=workspace_name,
+            ids=ids
+        )
 
-    if ids is None or len(ids) < 1:
-        logging.warn("Nothing to delete in this module")
-        return 0
-
-    return dictionary_api.delete_sources(
-        workspace_name=workspace_name,
-        ids=ids
-    )
+    return 0
 
 
 def delete_dictionary_parse(subparsers):

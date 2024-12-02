@@ -1,7 +1,6 @@
 from typing import Optional
 
-from toolbox.api.datagalaxy_api import DataGalaxyBulkResult
-from toolbox.api.datagalaxy_api_dictionary import DataGalaxyApiDictionary
+from toolbox.api.datagalaxy_api_modules import DataGalaxyApiModules
 from toolbox.api.datagalaxy_api_workspaces import DataGalaxyApiWorkspace
 
 
@@ -11,7 +10,7 @@ def copy_dictionary(url_source: str,
                     token_target: Optional[str],
                     workspace_source_name: str,
                     workspace_target_name: str,
-                    tag_value: Optional[str]) -> DataGalaxyBulkResult:
+                    tag_value: Optional[str]) -> int:
     if token_target is None:
         token_target = token_source
 
@@ -34,39 +33,40 @@ def copy_dictionary(url_source: str,
     if target_workspace is None:
         raise Exception(f'workspace {workspace_target_name} does not exist')
 
-    dictionary_on_source_workspace = DataGalaxyApiDictionary(
+    source_dictionary_api = DataGalaxyApiModules(
         url=url_source,
         token=token_source,
-        workspace=workspaces_api_on_source_env.get_workspace(workspace_source_name)
+        workspace=workspaces_api_on_source_env.get_workspace(workspace_source_name),
+        module="Dictionary"
     )
-    dictionary_on_target_workspace = DataGalaxyApiDictionary(
+    target_dictionary_api = DataGalaxyApiModules(
         url=url_target,
         token=token_target,
-        workspace=target_workspace
+        workspace=target_workspace,
+        module="Dictionary"
     )
 
-    # fetching sources from workspace_source
-    source_sources = dictionary_on_source_workspace.list_sources(workspace_source_name)
-    source_all = source_sources
+    # fetch sources (databases) from source workspace
+    source_sources = source_dictionary_api.list_objects(workspace_source_name)
 
-    # fetching containers from workspace_source
-    source_containers = dictionary_on_source_workspace.list_containers(workspace_source_name)
-    source_all = source_all + source_containers
+    for page in source_sources:
+        for source in page:
+            # fetch children objects for each source
+            source_id = source['id']
+            containers = source_dictionary_api.list_children_objects(workspace_source_name, source_id, "containers")
+            structures = source_dictionary_api.list_children_objects(workspace_source_name, source_id, "structures")
+            fields = source_dictionary_api.list_children_objects(workspace_source_name, source_id, "fields")
+            # todo : fetch primary keys and foreign keys
 
-    # fetching structures from workspace_source
-    source_structures = dictionary_on_source_workspace.list_structures(workspace_source_name)
-    source_all = source_all + source_structures
+            # bulk upsert source tree
+            target_dictionary_api.bulk_upsert_source_tree(
+                workspace_name=workspace_target_name,
+                source=source,
+                objects=containers + structures + fields,
+                tag_value=tag_value
+            )
 
-    # fetching fields from workspace_source
-    source_fields = dictionary_on_source_workspace.list_fields(workspace_source_name)
-    source_all = source_all + source_fields
-
-    # copy all the dictionary in workspace_target
-    return dictionary_on_target_workspace.bulk_upsert_sources_tree(
-        workspace_name=workspace_target_name,
-        sources=source_all,
-        tag_value=tag_value
-    )
+    return 0
 
 
 def copy_dictionary_parse(subparsers):

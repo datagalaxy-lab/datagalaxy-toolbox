@@ -1,4 +1,4 @@
-from toolbox.api.datagalaxy_api_dictionary import DataGalaxyApiDictionary
+from toolbox.api.datagalaxy_api_modules import DataGalaxyApiModules
 from toolbox.commands.copy_dictionary import copy_dictionary
 from toolbox.api.datagalaxy_api_workspaces import DataGalaxyApiWorkspace
 import pytest as pytest
@@ -6,26 +6,26 @@ import pytest as pytest
 
 # Mocks
 
-def mock_list_sources_on_source_workspace(self, workspace_name):
+def mock_list_objects_on_source_workspace(self, workspace_name):
     if workspace_name == 'workspace_source':
-        return ['source1', 'source2', 'source3']
+        return [['object1', 'object2', 'object3']]
     return []
 
 
 # Scenarios
 
-def test_copy_sources_when_workspace_source_does_not_exist(mocker):
+def test_copy_dictionary_when_workspace_target_does_not_exist(mocker):
     # GIVEN
     workspaces = mocker.patch.object(DataGalaxyApiWorkspace, 'list_workspaces', autospec=True)
     workspaces.return_value = ['workspace_source']
     workspace_source_mock = mocker.patch.object(DataGalaxyApiWorkspace, 'get_workspace', autospec=True)
     workspace_source_mock.return_value = None
-    sources_on_source_workspace_mock = mocker.patch.object(
-        DataGalaxyApiDictionary,
-        'list_sources',
+    objects_on_source_workspace_mock = mocker.patch.object(
+        DataGalaxyApiModules,
+        'list_objects',
         autospec=True
     )
-    sources_on_source_workspace_mock.side_effect = mock_list_sources_on_source_workspace
+    objects_on_source_workspace_mock.side_effect = mock_list_objects_on_source_workspace
 
     # ASSERT / VERIFY
     with pytest.raises(Exception, match='workspace workspace_source does not exist'):
