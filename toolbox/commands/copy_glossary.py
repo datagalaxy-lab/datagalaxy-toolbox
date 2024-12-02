@@ -1,7 +1,7 @@
 from typing import Optional
 
 from toolbox.api.datagalaxy_api import DataGalaxyBulkResult
-from toolbox.api.datagalaxy_api_glossary import DataGalaxyApiGlossary
+from toolbox.api.datagalaxy_api_modules import DataGalaxyApiModules
 from toolbox.api.datagalaxy_api_workspaces import DataGalaxyApiWorkspace
 
 
@@ -21,38 +21,40 @@ def copy_glossary(url_source: str,
     workspaces_api_on_source_env = DataGalaxyApiWorkspace(
         url=url_source,
         token=token_source)
+    source_workspace = workspaces_api_on_source_env.get_workspace(workspace_source_name)
+    if source_workspace is None:
+        raise Exception(f'workspace {workspace_source_name} does not exist')
 
     workspaces_api_on_target_env = DataGalaxyApiWorkspace(
         url=url_target,
         token=token_target
     )
+    target_workspace = workspaces_api_on_target_env.get_workspace(workspace_target_name)
+    if target_workspace is None:
+        raise Exception(f'workspace {workspace_target_name} does not exist')
 
-    workspace_source = workspaces_api_on_source_env.get_workspace(workspace_source_name)
-    workspace_target = workspaces_api_on_target_env.get_workspace(workspace_target_name)
+    source_module_api = DataGalaxyApiModules(
+        url=url_source,
+        token=token_source,
+        workspace=workspaces_api_on_source_env.get_workspace(workspace_source_name),
+        module="Glossary"
+    )
+    target_module_api = DataGalaxyApiModules(
+        url=url_target,
+        token=token_target,
+        workspace=workspaces_api_on_target_env.get_workspace(workspace_target_name),
+        module="Glossary"
+    )
 
-    if workspace_target:
-        # on récupère les propriétés du glossary du workspace_source
-        glossary_on_source_workspace = DataGalaxyApiGlossary(
-            url=url_source,
-            token=token_source,
-            workspace=workspace_source
-        )
-        workspace_source_glossary_properties = glossary_on_source_workspace.list_properties(
-            workspace_source_name)
+    # fetch objects from source workspace
+    source_objects = source_module_api.list_objects(workspace_source_name)
 
-        # on copie ces propriétés sur le workspace_target
-        glossary_on_target_workspace = DataGalaxyApiGlossary(
-            url=url_target,
-            token=token_target,
-            workspace=workspace_target
-        )
-        return glossary_on_target_workspace.bulk_upsert_property_tree(
-            workspace_name=workspace_target_name,
-            properties=workspace_source_glossary_properties,
-            tag_value=tag_value
-        )
-
-    raise Exception(f'workspace {workspace_target_name} does not exist')
+    # create objects on target workspace
+    return target_module_api.bulk_upsert_tree(
+        workspace_name=workspace_target_name,
+        objects=source_objects,
+        tag_value=tag_value
+    )
 
 
 def copy_glossary_parse(subparsers):

@@ -1,8 +1,8 @@
-import logging
 from typing import Optional
 
 from toolbox.api.datagalaxy_api import DataGalaxyBulkResult
-from toolbox.api.datagalaxy_api_dataprocessings import DataGalaxyApiDataprocessings
+# from toolbox.api.datagalaxy_api_dataprocessings import DataGalaxyApiDataprocessings
+from toolbox.api.datagalaxy_api_modules import DataGalaxyApiModules
 from toolbox.api.datagalaxy_api_workspaces import DataGalaxyApiWorkspace
 
 
@@ -34,58 +34,66 @@ def copy_dataprocessings(url_source: str,
     if target_workspace is None:
         raise Exception(f'workspace {workspace_target_name} does not exist')
 
-    source_dataprocessings_api = DataGalaxyApiDataprocessings(
+    source_module_api = DataGalaxyApiModules(
         url=url_source,
         token=token_source,
-        workspace=source_workspace
+        workspace=workspaces_api_on_source_env.get_workspace(workspace_source_name),
+        module="DataProcessing"
     )
-    target_dataprocessings_api = DataGalaxyApiDataprocessings(
+    target_module_api = DataGalaxyApiModules(
         url=url_target,
         token=token_target,
-        workspace=target_workspace
+        workspace=workspaces_api_on_target_env.get_workspace(workspace_target_name),
+        module="DataProcessing"
     )
 
-    # fetch dataprocessings from source workspace
-    source_dataprocessings = source_dataprocessings_api.list_dataprocessings(workspace_source_name)
+    # fetch objects from source workspace
+    source_objects = source_module_api.list_objects(workspace_source_name)
 
     # fetch dataprocessingsitems for each dp in source workspace (but not dataflows)
-    for dp in source_dataprocessings:
-        if dp['type'] == "DataFlow":
-            logging.info('DataFlow found, it has no item')
-            continue
-        dp_index = source_dataprocessings.index(dp)
-        items = source_dataprocessings_api.list_dataprocessing_items(workspace_name=workspace_source_name, parent_id=dp['id'])
-        for item in items:
-            item_index = items.index(item)
-            # some objects have no summary, and some have a summary but set to "None" which raises an error in the API somehow
-            if "summary" in items[item_index] and items[item_index]['summary'] is None:
-                items[item_index]['summary'] = ""
-            # for inputs and outputs, property 'path' must be named 'entityPath'
-            if 'inputs' in item:
-                for input in item['inputs']:
-                    input_index = item['inputs'].index(input)
-                    items[item_index]['inputs'][input_index]['entityPath'] = input['path']
-            else:
-                items[item_index]['inputs'] = []
-            if 'outputs' in item:
-                for output in item['outputs']:
-                    output_index = item['outputs'].index(output)
-                    items[item_index]['outputs'][output_index]['entityPath'] = output['path']
-            else:
-                items[item_index]['outputs'] = []
-            # there is a problem with dpi types, we must map them to the correct value (accepted by the API)
-            if item['type'] == "Search":
-                items[item_index]['type'] = "Lookup"
-            if item['type'] == "ConstantVariable":
-                items[item_index]['type'] = "Variable"
-            if item['type'] == "Calculation":
-                items[item_index]['type'] = "AnalyticalCalculation"
-        source_dataprocessings[dp_index]['dataProcessingItems'] = items
+    for page in source_objects:
+        page_index = source_objects.index(page)
+        for dp in page:
+            if dp['type'] == "DataFlow":
+                # a DataFlow do not have dpi
+                continue
+            dp_index = page.index(dp)
+            items = source_module_api.list_object_items(workspace_name=workspace_source_name, parent_id=dp['id'])
+            if len(items) < 1:
+                # no dpi, let's move on to the next one
+                continue
+            for item in items:
+                item_index = items.index(item)
+                # some objects have no summary, and some have a summary but set to "None" which raises an error in the API somehow
+                if "summary" in items[item_index] and items[item_index]['summary'] is None:
+                    items[item_index]['summary'] = ""
+                # for inputs and outputs, property 'path' must be named 'entityPath'
+                if 'inputs' in item:
+                    for input in item['inputs']:
+                        input_index = item['inputs'].index(input)
+                        items[item_index]['inputs'][input_index]['entityPath'] = input['path']
+                else:
+                    items[item_index]['inputs'] = []
+                if 'outputs' in item:
+                    for output in item['outputs']:
+                        output_index = item['outputs'].index(output)
+                        items[item_index]['outputs'][output_index]['entityPath'] = output['path']
+                else:
+                    items[item_index]['outputs'] = []
+                # there is a problem with dpi types, we must map them to the correct value (accepted by the API)
+                if item['type'] == "Search":
+                    items[item_index]['type'] = "Lookup"
+                if item['type'] == "ConstantVariable":
+                    items[item_index]['type'] = "Variable"
+                if item['type'] == "Calculation":
+                    items[item_index]['type'] = "AnalyticalCalculation"
+            page[dp_index]['dataProcessingItems'] = items
+        source_objects[page_index] = page
 
-    # copy the dataprocessings on the target workspace
-    return target_dataprocessings_api.bulk_upsert_dataprocessings_tree(
+    # create objects on target workspace
+    return target_module_api.bulk_upsert_tree(
         workspace_name=workspace_target_name,
-        dataprocessings=source_dataprocessings,
+        objects=source_objects,
         tag_value=tag_value
     )
 
