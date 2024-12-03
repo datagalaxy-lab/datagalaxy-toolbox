@@ -122,6 +122,26 @@ def find_root_objects(objects: list) -> list:
     return root_objects
 
 
+def create_batches(input_arrays, max_size=5000):
+    batches = []  # This will hold the list of arrays
+    current_batch = []  # Temporary array to build chunks
+
+    for arr in input_arrays:
+        for obj in arr:  # Add each object from the input array
+            if len(current_batch) < max_size:
+                current_batch.append(obj)
+            else:
+                # When the current array reaches max size, save it and start a new one
+                batches.append(current_batch)
+                current_batch = [obj]
+
+    # Add the remaining objects in `current_batch` if it's not empty
+    if current_batch:
+        batches.append(current_batch)
+
+    return batches
+
+
 def to_bulk_tree(properties: list) -> list:
     if properties is None or len(properties) == 0:
         logging.warn("Cannot bulk upsert an empty list of objects")
