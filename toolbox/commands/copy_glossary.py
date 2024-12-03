@@ -1,6 +1,5 @@
 from typing import Optional
 
-from toolbox.api.datagalaxy_api import DataGalaxyBulkResult
 from toolbox.api.datagalaxy_api_modules import DataGalaxyApiModules
 from toolbox.api.datagalaxy_api_workspaces import DataGalaxyApiWorkspace
 
@@ -11,7 +10,7 @@ def copy_glossary(url_source: str,
                   token_target: Optional[str],
                   workspace_source_name: str,
                   workspace_target_name: str,
-                  tag_value: Optional[str]) -> DataGalaxyBulkResult:
+                  tag_value: Optional[str]) -> int:
     if token_target is None:
         token_target = token_source
 
@@ -50,11 +49,13 @@ def copy_glossary(url_source: str,
     source_objects = source_module_api.list_objects(workspace_source_name)
 
     # create objects on target workspace
-    return target_module_api.bulk_upsert_tree(
+    target_module_api.bulk_upsert_tree(
         workspace_name=workspace_target_name,
         objects=source_objects,
         tag_value=tag_value
     )
+
+    return 0
 
 
 def copy_glossary_parse(subparsers):

@@ -1,7 +1,6 @@
 from toolbox.api.datagalaxy_api_modules import DataGalaxyApiModules
 from toolbox.api.datagalaxy_api_workspaces import DataGalaxyApiWorkspace
 from toolbox.commands.copy_glossary import copy_glossary
-from toolbox.api.datagalaxy_api import DataGalaxyBulkResult
 import pytest as pytest
 
 
@@ -32,13 +31,7 @@ def test_copy_objects_when_no_object_on_target(mocker):
         'bulk_upsert_tree',
         autospec=True
     )
-    bulk_upsert_objects_on_target_workspace_mock.return_value = DataGalaxyBulkResult(
-        total=3,
-        created=3,
-        updated=0,
-        unchanged=0,
-        deleted=0
-    )
+    bulk_upsert_objects_on_target_workspace_mock.return_value = 0
 
     # THEN
     result = copy_glossary(
@@ -53,7 +46,7 @@ def test_copy_objects_when_no_object_on_target(mocker):
 
     # ASSERT / VERIFY
 
-    assert result == DataGalaxyBulkResult(total=3, created=3, updated=0, unchanged=0, deleted=0)
+    assert result == 0
     assert objects_on_source_workspace_mock.call_count == 1
     assert bulk_upsert_objects_on_target_workspace_mock.call_count == 1
 
