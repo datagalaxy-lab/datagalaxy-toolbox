@@ -6,7 +6,7 @@ from typing import Optional
 
 class DataGalaxyApiModules:
     def __init__(self, url: str, token: str, workspace: dict, module: str):
-        if module not in ["Glossary", "Dictionary", "DataProcessing", "Uses"]:
+        if module not in ["Glossary", "Dictionary", "DataProcessing", "Uses", "Links"]:
             raise Exception('The specified module does not exist.')
         self.module = module
         if module == "Glossary":
@@ -17,6 +17,8 @@ class DataGalaxyApiModules:
             self.route = "dataProcessing"
         if module == "Uses":
             self.route = "usages"
+        if module == "Links":
+            self.route = "links"
 
         if workspace["isVersioningEnabled"]:
             raise Exception('Workspaces with versioning enabled are currently not supported.')
@@ -179,3 +181,17 @@ class DataGalaxyApiModules:
         logging.info(
             f'delete_objects - {body_json["totalDeleted"]} objects were deleted on workspace "{workspace_name}" in module {self.module}')
         return 0
+
+    def bulk_create_links(self, workspace_name: str, links: list) -> int:
+        # Objects can be in pages, so one POST request per page
+        for page in links:
+            version_id = self.workspace['defaultVersionId']
+            headers = {'Authorization': f"Bearer {self.token}"}
+            response = requests.post(f"{self.url}/{self.route}/bulktree/{version_id}", json=page,
+                                     headers=headers)
+            code = response.status_code
+            body_json = response.json()
+            if code != 201:
+                raise Exception(body_json['error'])
+            logging.info(f"bulk_create_links - {body_json}")
+        return 201

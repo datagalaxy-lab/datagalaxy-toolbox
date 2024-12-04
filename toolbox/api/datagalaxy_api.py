@@ -14,36 +14,7 @@ class DataGalaxyApi:
     token: str
 
 
-@dataclass(frozen=True)
-class DataGalaxyBulkResult:
-    total: int
-    created: int
-    deleted: int
-    unchanged: int
-    updated: int
-
-
-@dataclass(frozen=True)
-class DataGalaxyPathWithType:
-    path: str
-    path_type: str
-
-
 PATH_SEPARATOR = "\\"
-
-
-BULK_PROPERTIES_FIELDS_TO_REMOVE = ['path', 'typePath', 'location', 'attributes', 'objectUrl', 'childrenCount',
-                                    'lastModificationTime', 'creationTime']
-
-
-def del_useless_keys(members: dict):
-    for key in list(members.keys()):
-        if key in BULK_PROPERTIES_FIELDS_TO_REMOVE:
-            del members[key]
-        else:
-            pass
-
-    return members
 
 
 def handle_timeserie(property: dict) -> dict:
@@ -140,46 +111,6 @@ def create_batches(input_arrays, max_size=5000):
         batches.append(current_batch)
 
     return batches
-
-
-def to_bulk_tree(properties: list) -> list:
-    if properties is None or len(properties) == 0:
-        logging.warn("Cannot bulk upsert an empty list of objects")
-        return 0
-
-    nodes_map = {}
-    for property in properties:
-        nodes_map[DataGalaxyPathWithType(property['path'], property['typePath'])] = property
-
-    for property in properties:
-
-        if 'attributes' in property:
-            property.update(property['attributes'])
-
-        path = property['path']
-        path_type = property['typePath']
-        del_useless_keys(property)
-        handle_timeserie(property)
-
-        # TRANSFORM to bulk item
-        path_segments = path[1:].split(PATH_SEPARATOR)
-        if len(path_segments) > 1:
-            parent_path_segments = path_segments[:-1]
-            parent_path_type_segments = path_type[1:].split(PATH_SEPARATOR)[:-1]
-            parent_path = f"{PATH_SEPARATOR}{PATH_SEPARATOR.join(parent_path_segments)}"
-            parent_path_type = f"{PATH_SEPARATOR}{PATH_SEPARATOR.join(parent_path_type_segments)}"
-            parent = nodes_map[DataGalaxyPathWithType(parent_path, parent_path_type)]
-            if 'children' in parent:
-                parent['children'].append(property)
-            else:
-                parent['children'] = [property]
-
-    root_nodes = []
-    for key, value in nodes_map.items():
-        if len(key.path[1:].split(PATH_SEPARATOR)) == 1:
-            root_nodes.append(value)
-
-    return root_nodes
 
 
 def prune_tree(tree, target_tag):

@@ -1,57 +1,64 @@
-# Toolbox
+# DataGalaxy Toolbox
 
 [![Build status](../../workflows/CI/badge.svg)](../../actions?query=workflow%3ACI)
 
-Toolbox allows you to perform admin operations on [DataGalaxy](https://www.datagalaxy.com). 
+Welcome to the DataGalaxy Toolbox!
+
+This is an opensource command-line tool that allows to perform admin operations on [DataGalaxy](https://www.datagalaxy.com). 
 
 ## Features
-- **Copy attributes** from a source client space to a target client space.
-- **Delete attributes** on client space.
-- **Copy technologies** from a source client space to a target client space.
-- **Copy screens** from a source client space or workspace to a target client space or workspace.
-- **Copy glossary** properties from a workspace to another.
-- **Delete glossary** of a workspace.
+### Clientspace operations
+- **Copy custom attributes** from a clientspace to another.
+- **Delete custom attributes** on a clientspace.
+- **Copy technologies** from a clientspace to another.
+
+### Clientspace / workspace operations
+- **Copy screens** from a clientspace (or workspace) to another clientspace (or workspace).
+
+### Workspace operations
+Note that the workspaces can be on different clientspaces.
+- **Copy glossary** objects from a workspace to another.
 - **Copy dictionary** objects from a workspace to another.
-- **Delete dictionary** of a workspace.
-- **Copy dataprocessings** from a workspace to another.
-- **Delete dataprocessings** of a workspace.
-- **Copy usages** from a workspace to another.
-- **Delete usages** of a workspace.
+- **Copy dataprocessings** objects from a workspace to another.
+- **Copy usages** objects from a workspace to another.
 - **Copy links** from a workspace to another.
+- **Delete glossary** objects of a workspace.
+- **Delete dictionary** objects of a workspace.
+- **Delete dataprocessings** objects of a workspace.
+- **Delete usages** objects of a workspace.
+
+#### General remarks
+- As DataGalaxy do not support link creation when the objects do not already exist in the target workspace, we suggest that you run the copy commands in this order:
+  1. `copy-glossary`, `copy-dictionary`, `copy-usages` (order doesn't matter)
+  2. `copy-dataprocessings` (as they can have dataProcessingItems that connect dictionary elements, this command might fail if you run it before copying the dictionary)
+  3. `copy-links` (this command will fail if you haven't copied all the objects before)
+- All module copy commands will fail if the source objects have a custom technology value that do not exist in the target clientspace (there is no issue if you run the module copy in the same clientspace). As a consequence, we suggest that you run `copy-technologies` before copying modules. 
+- All copy module commands will fail if the source objects have a custom tag value that do not exist in the target clientspace (there is no issue if you run the module copy in the same clientspace). As a consequence, we suggest that you run `copy-attributes` before copying modules. 
 
 ## Installation
 
-For now we provide an executable file `datagalaxy-toolbox.exe` which makes Toolbox usable only on Windows.
+An executable file `datagalaxy-toolbox.exe` is provided, which makes the DataGalaxy Toolbox usable only on Windows.
 You can download it from the `Assets` section of the [Releases page](https://github.com/datagalaxy-lab/datagalaxy-toolbox/releases).
-If you want to use Toolbox on Mac or Linux you need to build a binary file following the [development](#development) section.
 
-## Usage
+If you want to use the DataGalaxy Toolbox on MacOS or Unix, you need to build a binary file following the [development](#development) section.
 
-### CLI
+## How to use
 
-##### Flags
+##### Parameters
 - [optional arguments] `-h`, `--help`- show help message  
-- `--url` - URL 
-- `--token` - Token 
-- `--url-source`- URL source environnement
-- `--url-target` - URL target environnement 
-- `--token-source` - Token from source environnement
-- `--token-target` - Token from target environnement
-- `--workspace-source` - Workspace source name
-- `--workspace-target` - Workspace target name
+- `--url` - The API URL of your DataGalaxy environment
+- `--token` - A DataGalaxy Token, either an Integration Token or a Personal Access Token
+- `--url-source`- The API URL of the source environnement
+- `--url-target` - The API URL of the target environnement 
+- `--token-source` - A DataGalaxy Token from the source environnement
+- `--token-target` - A DataGalaxy Token from the Token from target environnement
+- `--workspace-source` - The name of the source workspace
+- `--workspace-target` - The name of the target workspace
 - `--tag-value` - Filter objects on a specific tag
 
 
 
-
-
-#### delete-attributes
-
-Toolbox checks that there is no identical attribute on the target client space before running the copy from the source. It raises an exception and stops the program if it finds duplicate attributes.
-To delete attributes from the target client space to allow copying run: 
-```
-datagalaxy-toolbox.exe delete-attributes [-h] --url URL --token TOKEN
-```
+### Clientspace operations
 
 #### copy-attributes
 
@@ -65,29 +72,74 @@ datagalaxy-toolbox.exe copy-attributes [-h] --url-source URL_SOURCE --url-target
 datagalaxy-toolbox.exe copy-technologies [-h] --url-source URL_SOURCE --url-target URL_TARGET --token-source TOKEN_SOURCE --token-target TOKEN_TARGET
 ```
 
+#### delete-attributes
+
+```
+datagalaxy-toolbox.exe delete-attributes [-h] --url URL --token TOKEN
+```
+
+### Clientspace / Workspace operations
+
 #### copy-screens
 
 ```
 datagalaxy-toolbox.exe copy-screens [-h] --url-source URL_SOURCE [--url-target URL_TARGET] --token-source TOKEN_SOURCE [--token-target TOKEN_TARGET] [--workspace-source WORKSPACE_SOURCE] [--workspace-target WORKSPACE_TARGET]
 ```
- `--url-target` and `--token-target` are optional if the copy is made on the same client space.
+ `--url-target` and `--token-target` are optional if the copy is made on the same clientspace.
 
- `--workspace-source` is optional if the copy is made from a client space.
+ `--workspace-source` is optional if the copy is made from a clientspace.
 
- `--workspace-target` is optional if the copy is made to a client space.
+ `--workspace-target` is optional if the copy is made to a clientspace.
  
  4 scenarios are possible:
-  - Copy screens from a client space to another client space (different client spaces)
-  - Copy screens from a workspace to a client space (can be on the same client space or not)
-  - Copy screens from a client space to a workspace (can be on the same client space or not)
-  - Copy screens from a workspace to another workspace (can be on the same client space or not)
+  - Copy screens from a clientspace to another clientspace (different clientspaces)
+  - Copy screens from a workspace to a clientspace (can be on the same clientspace or not)
+  - Copy screens from a clientspace to a workspace (can be on the same clientspace or not)
+  - Copy screens from a workspace to another workspace (can be on the same clientspace or not)
+
+
+
+### Workspace operations
 
 #### copy-glossary
 
 ```
 datagalaxy-toolbox.exe copy-glossary [-h] --url-source URL_SOURCE --token-source TOKEN_SOURCE [--url-target URL_TARGET] [--token-target TOKEN_TARGET] --workspace-source WORKSPACE_SOURCE --workspace-target WORKSPACE_TARGET [--tag-value TAG_NAME]
 ```
- `--url-target` and `--token-target` are optional if the copy is made on the same client space.
+ `--url-target` and `--token-target` are optional if the copy is made on the same clientspace.
+
+
+#### copy-dictionary
+
+```
+datagalaxy-toolbox.exe copy-dictionary [-h] --url-source URL_SOURCE --token-source TOKEN_SOURCE [--url-target URL_TARGET] [--token-target TOKEN_TARGET] --workspace-source WORKSPACE_SOURCE --workspace-target WORKSPACE_TARGET [--tag-value TAG_NAME]
+```
+ `--url-target` and `--token-target` are optional if the copy is made on the same clientspace.
+
+
+#### copy-dataprocessings
+
+```
+datagalaxy-toolbox.exe copy-dataprocessings [-h] --url-source URL_SOURCE --token-source TOKEN_SOURCE [--url-target URL_TARGET] [--token-target TOKEN_TARGET] --workspace-source WORKSPACE_SOURCE --workspace-target WORKSPACE_TARGET [--tag-value TAG_NAME]
+```
+ `--url-target` and `--token-target` are optional if the copy is made on the same clientspace.
+
+
+#### copy-usages
+
+```
+datagalaxy-toolbox.exe copy-usages [-h] --url-source URL_SOURCE --token-source TOKEN_SOURCE [--url-target URL_TARGET] [--token-target TOKEN_TARGET] --workspace-source WORKSPACE_SOURCE --workspace-target WORKSPACE_TARGET [--tag-value TAG_NAME]
+```
+ `--url-target` and `--token-target` are optional if the copy is made on the same clientspace.
+
+
+#### copy-links
+
+```
+datagalaxy-toolbox.exe copy-links [-h] --url-source URL_SOURCE --token-source TOKEN_SOURCE [--url-target URL_TARGET] [--token-target TOKEN_TARGET] --workspace-source WORKSPACE_SOURCE --workspace-target WORKSPACE_TARGET
+```
+ `--url-target` and `--token-target` are optional if the copy is made on the same clientspace.
+
 
 #### delete-glossary
 
@@ -95,12 +147,6 @@ datagalaxy-toolbox.exe copy-glossary [-h] --url-source URL_SOURCE --token-source
 datagalaxy-toolbox.exe delete-glossary [-h] --url URL --token TOKEN --workspace WORKSPACE
 ```
 
-#### copy-dictionary
-
-```
-datagalaxy-toolbox.exe copy-dictionary [-h] --url-source URL_SOURCE --token-source TOKEN_SOURCE [--url-target URL_TARGET] [--token-target TOKEN_TARGET] --workspace-source WORKSPACE_SOURCE --workspace-target WORKSPACE_TARGET [--tag-value TAG_NAME]
-```
- `--url-target` and `--token-target` are optional if the copy is made on the same client space.
 
 #### delete-dictionary
 
@@ -108,12 +154,6 @@ datagalaxy-toolbox.exe copy-dictionary [-h] --url-source URL_SOURCE --token-sour
 datagalaxy-toolbox.exe delete-dictionary [-h] --url URL --token TOKEN --workspace WORKSPACE
 ```
 
-#### copy-dataprocessings
-
-```
-datagalaxy-toolbox.exe copy-dataprocessings [-h] --url-source URL_SOURCE --token-source TOKEN_SOURCE [--url-target URL_TARGET] [--token-target TOKEN_TARGET] --workspace-source WORKSPACE_SOURCE --workspace-target WORKSPACE_TARGET [--tag-value TAG_NAME]
-```
- `--url-target` and `--token-target` are optional if the copy is made on the same client space.
 
 #### delete-dataprocessings
 
@@ -121,12 +161,6 @@ datagalaxy-toolbox.exe copy-dataprocessings [-h] --url-source URL_SOURCE --token
 datagalaxy-toolbox.exe delete-dataprocessings [-h] --url URL --token TOKEN --workspace WORKSPACE
 ```
 
-#### copy-usages
-
-```
-datagalaxy-toolbox.exe copy-usages [-h] --url-source URL_SOURCE --token-source TOKEN_SOURCE [--url-target URL_TARGET] [--token-target TOKEN_TARGET] --workspace-source WORKSPACE_SOURCE --workspace-target WORKSPACE_TARGET [--tag-value TAG_NAME]
-```
- `--url-target` and `--token-target` are optional if the copy is made on the same client space.
 
 #### delete-usages
 
@@ -134,21 +168,17 @@ datagalaxy-toolbox.exe copy-usages [-h] --url-source URL_SOURCE --token-source T
 datagalaxy-toolbox.exe delete-usages [-h] --url URL --token TOKEN --workspace WORKSPACE
 ```
 
-#### copy-links
-
-```
-datagalaxy-toolbox.exe copy-links [-h] --url-source URL_SOURCE --token-source TOKEN_SOURCE [--url-target URL_TARGET] [--token-target TOKEN_TARGET] --workspace-source WORKSPACE_SOURCE --workspace-target WORKSPACE_TARGET
-```
- `--url-target` and `--token-target` are optional if the copy is made on the same client space.
 
 
 ## Development 
 
 ### Prerequisites
 
-Toolbox requires:
+The DataGalaxy Toolbox requires:
 
 - Python >= 3.9
+
+### Steps
 
 1. Clone the repository
 2. Create a [virtual env](https://docs.python.org/3/tutorial/venv.html) in the `.venv` folder 
@@ -164,19 +194,6 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ````
 
-### Testing
-
-To run tests
-```
-python -m pytest
-```
-
-### Linter
-
-We use [Flake8](https://pypi.org/project/flake8/) as a linter
-```
-python -m flake8 .
-```
 ### Build a binary file
 
 run the command
@@ -191,10 +208,23 @@ This creates a **`dist`** folder with the binary file.
 ````
 ./dist/datagalaxy-toolbox --help
 ````
+### Testing
+
+To run tests
+```
+python -m pytest
+```
+
+### Linter
+
+[Flake8](https://pypi.org/project/flake8/) is used as a linter
+```
+python -m flake8 .
+```
 
 ## Contributing
 
-This project welcomes contributions and suggestions.
+This project is not officially supported by DataGalaxy. We welcome contributions and suggestions.
 Please have a look at our [Guidelines](CONTRIBUTING.md) for contributing.
 
 ## License

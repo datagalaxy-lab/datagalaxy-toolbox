@@ -1,11 +1,7 @@
 import logging
 from typing import Optional
 
-from toolbox.api.datagalaxy_api import DataGalaxyBulkResult
-from toolbox.api.datagalaxy_api_usages import DataGalaxyApiUsages
-from toolbox.api.datagalaxy_api_glossary import DataGalaxyApiGlossary
-from toolbox.api.datagalaxy_api_dictionary import DataGalaxyApiDictionary
-from toolbox.api.datagalaxy_api_links import DataGalaxyApiLinks
+from toolbox.api.datagalaxy_api_modules import DataGalaxyApiModules
 from toolbox.api.datagalaxy_api_workspaces import DataGalaxyApiWorkspace
 
 
@@ -14,7 +10,7 @@ def copy_links(url_source: str,
                token_source: str,
                token_target: Optional[str],
                workspace_source_name: str,
-               workspace_target_name: str) -> DataGalaxyBulkResult:
+               workspace_target_name: str) -> int:
     if token_target is None:
         token_target = token_source
 
@@ -36,68 +32,103 @@ def copy_links(url_source: str,
     if target_workspace is None:
         raise Exception(f'workspace {workspace_target_name} does not exist')
 
-    source_usages_api = DataGalaxyApiUsages(
+    source_glossary_api = DataGalaxyApiModules(
         url=url_source,
         token=token_source,
-        workspace=source_workspace
+        workspace=workspaces_api_on_source_env.get_workspace(workspace_source_name),
+        module="Glossary"
     )
-    source_glossary_api = DataGalaxyApiGlossary(
+    source_dictionary_api = DataGalaxyApiModules(
         url=url_source,
         token=token_source,
-        workspace=source_workspace
+        workspace=workspaces_api_on_source_env.get_workspace(workspace_source_name),
+        module="Dictionary"
     )
-    source_dictionary_api = DataGalaxyApiDictionary(
+    source_dataprocessings_api = DataGalaxyApiModules(
         url=url_source,
         token=token_source,
-        workspace=source_workspace
+        workspace=workspaces_api_on_source_env.get_workspace(workspace_source_name),
+        module="DataProcessing"
+    )
+    source_usages_api = DataGalaxyApiModules(
+        url=url_source,
+        token=token_source,
+        workspace=workspaces_api_on_source_env.get_workspace(workspace_source_name),
+        module="Uses"
     )
 
     # Find all links in source workspace
-    source_usages = source_usages_api.list_usages(workspace_source_name, include_links=True)
-    source_properties = source_glossary_api.list_properties(workspace_source_name, include_links=True)
-    source_sources = source_dictionary_api.list_sources(workspace_source_name, include_links=True)
-    source_containers = source_dictionary_api.list_containers(workspace_source_name, include_links=True)
-    source_structures = source_dictionary_api.list_structures(workspace_source_name, include_links=True)
-    source_fields = source_dictionary_api.list_fields(workspace_source_name, include_links=True)
-
+    source_glossary = source_glossary_api.list_objects(workspace_source_name, include_links=True)
+    source_dataprocessings = source_dataprocessings_api.list_objects(workspace_source_name, include_links=True)
+    source_usages = source_usages_api.list_objects(workspace_source_name, include_links=True)
+    source_dictionary = source_dictionary_api.list_objects(workspace_source_name, include_links=True)
+    source_dictionary_children = []
+    for page in source_dictionary:
+        for source in page:
+            source_id = source['id']
+            containers = source_dictionary_api.list_children_objects(workspace_source_name, source_id, "containers", include_links=True)
+            structures = source_dictionary_api.list_children_objects(workspace_source_name, source_id, "structures", include_links=True)
+            fields = source_dictionary_api.list_children_objects(workspace_source_name, source_id, "fields", include_links=True)
+            source_dictionary_children += containers
+            source_dictionary_children += structures
+            source_dictionary_children += fields
     # Collecting all links
-    links = parse_links(source_usages)
-    links += parse_links(source_properties)
-    links += parse_links(source_sources)
-    links += parse_links(source_containers)
-    links += parse_links(source_structures)
-    links += parse_links(source_fields)
-    logging.info(f'copy-links - {len(links)} links found')
+    link_batches = create_batches_of_links(source_glossary + source_dictionary + source_dataprocessings + source_usages + source_dictionary_children)
+    count_links = 0
+    for batch in link_batches:
+        count_links += len(batch)
+    logging.info(f'copy-links - {count_links} links found')
 
-    target_links_api = DataGalaxyApiLinks(
+    target_links_api = DataGalaxyApiModules(
         url=url_target,
         token=token_target,
-        workspace=target_workspace
+        workspace=target_workspace,
+        module="Links"
     )
 
-    # Creating links in target workspace
-    return target_links_api.bulk_create_links(workspace_name=workspace_target_name, links=links)
+    # # Creating links in target workspace
+    target_links_api.bulk_create_links(workspace_name=workspace_target_name, links=link_batches)
+    return 0
 
 
-def parse_links(objs: list) -> list:
+def create_batches_of_links(input_arrays, max_size=5000):
+    batches = []  # This will hold the list of arrays
+    current_batch = []  # Temporary array to build chunks
+
+    for arr in input_arrays:
+        for obj in arr:  # Add each object from the input array
+            links = parse_links(obj)
+            if len(current_batch) < max_size:
+                current_batch += links
+            else:
+                # When the current array reaches max size, save it and start a new one
+                batches.append(current_batch)
+                current_batch = links
+
+    # Add the remaining objects in `current_batch` if it's not empty
+    if current_batch:
+        batches.append(current_batch)
+
+    return batches
+
+
+def parse_links(obj: dict) -> list:
     links = []
-    for obj in objs:
-        # DPI are ignored since they are handled differently
-        if "DataProcessingItem" in obj["typePath"]:
-            continue
-        for key in obj["links"]:
-            for dest in obj["links"][key]:
-                if "DataProcessingItem" in dest["typePath"]:
-                    continue
-                logging.info(f'copy-links - {obj["path"]} {key} {dest["path"]}')
-                link = {
-                        'fromPath': obj["path"],
-                        'fromType': obj["typePath"],
-                        'linkType': key,
-                        'toPath': dest["path"],
-                        'toType': dest["typePath"]
-                       }
-                links.append(link)
+    # DPI are ignored since they are handled differently
+    if "DataProcessingItem" in obj["typePath"]:
+        return []
+    for key in obj["links"]:
+        for dest in obj["links"][key]:
+            if "DataProcessingItem" in dest["typePath"]:
+                continue
+            link = {
+                    'fromPath': obj["path"],
+                    'fromType': obj["typePath"],
+                    'linkType': key,
+                    'toPath': dest["path"],
+                    'toType': dest["typePath"]
+                    }
+            links.append(link)
     return links
 
 
