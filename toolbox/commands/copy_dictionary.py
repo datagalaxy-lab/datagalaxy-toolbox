@@ -53,10 +53,81 @@ def copy_dictionary(url_source: str,
         for source in page:
             # fetch children objects for each source
             source_id = source['id']
+            source_path = source['path']
+            # Children objects
             containers = source_dictionary_api.list_children_objects(workspace_source_name, source_id, "containers")
             structures = source_dictionary_api.list_children_objects(workspace_source_name, source_id, "structures")
             fields = source_dictionary_api.list_children_objects(workspace_source_name, source_id, "fields")
-            # todo : fetch primary keys and foreign keys
+
+            primary_keys = source_dictionary_api.list_keys(workspace_source_name, source_id, "primary")
+            foreign_keys = source_dictionary_api.list_keys(workspace_source_name, source_id, "foreign")
+            pks = []
+            fks = []
+            # PK
+            for primary_key in primary_keys:
+                pk_name = primary_key['technicalName']
+                table_id = primary_key["table"]["id"]
+                table_path = ""
+                for page in structures:
+                    for table in page:
+                        if table["id"] == table_id:
+                            table_path = table["path"]
+                for column in primary_key["columns"]:
+                    column_name = column["technicalName"]
+                    pk_order = column["pkOrder"]
+                    pk = {
+                        'tablePath': table_path.replace(source_path, "", 1),
+                        'columnName': column_name,
+                        'pkName': pk_name,
+                        'pkOrder': pk_order
+                    }
+                    pks.append(pk)
+            # FK
+            for foreign_keys in foreign_keys:
+                fk_technical_name = foreign_keys['technicalName']
+                fk_display_name = foreign_keys['displayName']
+                pk_technical_name = foreign_keys['primaryKey']['technicalName']
+                pk_table_id = foreign_keys['parents']['structure']['id']
+                pk_table_path = ""
+                for page in structures:
+                    for table in page:
+                        if table["id"] == pk_table_id:
+                            pk_table_path = table["path"]
+                fk_table_id = foreign_keys['children']['structure']['id']
+                fk_table_path = ""
+                for page in structures:
+                    for table in page:
+                        if table["id"] == fk_table_id:
+                            fk_table_path = table["path"]
+                parent_columns = foreign_keys['parents']['columns']
+                if len(parent_columns) > 1:
+                    print("More than 1 column")
+                    continue
+                for parent_column in parent_columns:
+                    pk_column_name = parent_column['technicalName']
+
+                children_columns = foreign_keys['children']['columns']
+                if len(children_columns) > 1:
+                    print("More than 1 column, ignoring this one")
+                    continue
+                for children_column in children_columns:
+                    fk_column_name = children_column['technicalName']
+                fk = {
+                    'fkTechnicalName': fk_technical_name,
+                    'pkTechnicalName': pk_technical_name,
+                    'pkTablePath': pk_table_path.replace(source_path, "", 1),
+                    'pkColumnName': pk_column_name,
+                    'fkTablePath': fk_table_path.replace(source_path, "", 1),
+                    'fkColumnName': fk_column_name,
+                    'fkDisplayName': fk_display_name
+                }
+                fks.append(fk)
+
+            # create new source to fetch its id
+            new_source_id = target_dictionary_api.create_source(
+                workspace_name=workspace_target_name,
+                source=source
+            )
 
             # bulk upsert source tree
             target_dictionary_api.bulk_upsert_source_tree(
@@ -65,6 +136,20 @@ def copy_dictionary(url_source: str,
                 objects=containers + structures + fields,
                 tag_value=tag_value
             )
+
+            # create PKs and FKs if they exist
+            if len(pks) > 0:
+                target_dictionary_api.create_keys(
+                    workspace_name=workspace_target_name,
+                    source_id=new_source_id,
+                    keys=pks,
+                    mode="primary")
+            if len(fks) > 0:
+                target_dictionary_api.create_keys(
+                    workspace_name=workspace_target_name,
+                    source_id=new_source_id,
+                    keys=fks,
+                    mode="foreign")
 
     return 0
 
