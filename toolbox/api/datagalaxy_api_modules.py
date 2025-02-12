@@ -112,6 +112,53 @@ class DataGalaxyApiModules:
             result_pages.append(body_json['results'])
         return result_pages
 
+    # This is a specific request for Dictionary
+    def list_keys(self, workspace_name: str, source_id: str, mode: str) -> list:
+        if mode not in ['primary', 'foreign']:
+            raise Exception("Mode not found")
+
+        version_id = self.workspace['defaultVersionId']
+        headers = {'Authorization': f"Bearer {self.token}"}
+        response = requests.get(f"{self.url}/{self.route}/{version_id}/{source_id}/{mode}Keys", headers=headers)
+        code = response.status_code
+        body_json = response.json()
+        if code != 200:
+            raise Exception(body_json['error'])
+        logging.info(
+            f'list_keys - {len(body_json)} {mode} keys found on '
+            f'workspace: {workspace_name} for source {source_id}')
+        return body_json
+
+    def create_keys(self, workspace_name: str, source_id: str, keys: list, mode='str') -> int:
+        if mode not in ['primary', 'foreign']:
+            raise Exception("Mode not found")
+
+        version_id = self.workspace['defaultVersionId']
+        headers = {'Authorization': f"Bearer {self.token}"}
+        response = requests.put(f"{self.url}/{self.route}/{version_id}/{source_id}/{mode}Keys", json=keys, headers=headers)
+        code = response.status_code
+        body_json = response.json()
+        if 200 <= code < 300:
+            logging.info(f'create_key - {mode} keys - {body_json}')
+        if 400 <= code < 500:
+            raise Exception(body_json['error'])
+
+        return 0
+
+    def create_source(self, workspace_name: str, source: dict) -> str:
+        version_id = self.workspace['defaultVersionId']
+        headers = {'Authorization': f"Bearer {self.token}"}
+        response = requests.post(f"{self.url}/{self.route}/{version_id}", json=source, headers=headers)
+        code = response.status_code
+        body_json = response.json()
+        if code != 201:
+            raise Exception(body_json['error'])
+
+        source_id = body_json['id']
+        logging.info(f'create_source - Created {source_id}')
+
+        return source_id
+
     def bulk_upsert_tree(self, workspace_name: str, objects: list, tag_value: Optional[str]) -> int:
         # Objects can be in pages, so one POST request per page
         for page in objects:
