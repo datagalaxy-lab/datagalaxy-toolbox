@@ -28,10 +28,11 @@ class DataGalaxyApiModules:
 
     def list_objects(self, workspace_name: str, include_links=False) -> list:
         version_id = self.workspace['defaultVersionId']
+        params = {'versionId': version_id, 'limit': '5000'}
         if include_links is True:
-            params = {'versionId': version_id, 'limit': '5000', 'includeLinks': 'true'}
+            params['includeLinks'] = 'true'
         else:
-            params = {'versionId': version_id, 'limit': '5000', 'includeAttributes': 'true'}
+            params['includeAttributes'] = 'true'
         headers = {'Authorization': f"Bearer {self.token}"}
         response = requests.get(f"{self.url}/{self.route}", params=params, headers=headers)
         code = response.status_code
@@ -214,7 +215,7 @@ class DataGalaxyApiModules:
 
     def delete_objects(self, workspace_name: str, ids: list) -> int:
         if len(ids) < 1:
-            logging.warn(f'Nothing to delete on workspace "{workspace_name}" in module {self.module}, aborting.')
+            logging.warning(f'Nothing to delete on workspace "{workspace_name}" in module {self.module}, aborting.')
             return 0
         version_id = self.workspace['defaultVersionId']
         headers = {'Authorization': f"Bearer {self.token}"}

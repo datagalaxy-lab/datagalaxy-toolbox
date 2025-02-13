@@ -117,9 +117,20 @@ def parse_links(obj: dict) -> list:
     # DPI are ignored since they are handled differently
     if "DataProcessingItem" in obj["typePath"]:
         return []
+    # ReferenceDataValue have to be ignored (at least for now)
+    if "ReferenceDataValue" in obj["typePath"]:
+        return []
     for key in obj["links"]:
         for dest in obj["links"][key]:
             if "DataProcessingItem" in dest["typePath"]:
+                continue
+            if "ReferenceDataValue" in dest["typePath"]:
+                logging.warning('The following link cannot be created with the API, please create it manually:')
+                logging.warning(obj["path"])
+                logging.warning(obj["typePath"])
+                logging.warning(key)
+                logging.warning(dest["path"])
+                logging.warning(dest["typePath"])
                 continue
             link = {
                     'fromPath': obj["path"],
@@ -130,6 +141,24 @@ def parse_links(obj: dict) -> list:
                     }
             links.append(link)
     return links
+
+
+# This is a WIP and not used yet in the codebase
+def handle_reference_data_value(source_glossary: list) -> str:
+    for page in source_glossary:
+        page_index = source_glossary.index(page)
+        for glossary_object in page:
+            go_index = page.index(glossary_object)
+            if glossary_object['type'] == 'ReferenceDataValue' and glossary_object['links']:
+                if 'attributes' in glossary_object and 'code' in glossary_object['attributes']:
+                    new_path = glossary_object['path'] + '\\' + glossary_object['attributes']['code']
+                    new_type_path = glossary_object['typePath'].replace('\\ReferenceDataValue', '\\Value\\ValueCode')
+                    page[go_index]['path'] = new_path
+                    page[go_index]['typePath'] = new_type_path
+                else:
+                    logging.warning(f'Links of Reference Data Value {glossary_object["technicalName"]} cannot be imported without editor attribute Code')
+                    logging.warning('Please add it to your DataGalaxy screen for Reference Data Value objects')
+        source_glossary[page_index] = page
 
 
 def copy_links_parse(subparsers):
