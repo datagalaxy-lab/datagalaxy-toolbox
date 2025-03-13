@@ -36,8 +36,8 @@ def test_run_with_missing_copy_attributes_args(mocker):
     assert re.compile('^usage:.*copy-attributes.*').match(mock_stderr.getvalue())
 
 
-def test_run_with_valid_copy_glossary_args(mocker):
-    copy_glossary_mock = mocker.patch('toolbox.__main__.copy_glossary')
+def test_run_with_valid_copy_module_args(mocker):
+    copy_module_mock = mocker.patch('toolbox.__main__.copy_module')
     exit_mock = mocker.patch('sys.exit')
     code = run([
         'copy-glossary',
@@ -46,16 +46,18 @@ def test_run_with_valid_copy_glossary_args(mocker):
         '--token-source', 'token_source',
         '--token-target', 'token_target',
         '--workspace-source', 'workspace_source_name',
+        '--version-source', 'version_source_name',
         '--workspace-target', 'workspace_target_name',
+        '--version-target', 'version_target_name',
     ])
 
     assert code == 0
     assert exit_mock.call_count == 0
-    assert copy_glossary_mock.call_count == 1
+    assert copy_module_mock.call_count == 1
 
 
-def test_run_with_valid_copy_glossary_args_without_optionnal_args(mocker):
-    copy_glossary_mock = mocker.patch('toolbox.__main__.copy_glossary')
+def test_run_with_valid_copy_module_args_without_optionnal_args(mocker):
+    copy_module_mock = mocker.patch('toolbox.__main__.copy_module')
     exit_mock = mocker.patch('sys.exit')
     code = run([
         'copy-glossary',
@@ -67,11 +69,11 @@ def test_run_with_valid_copy_glossary_args_without_optionnal_args(mocker):
 
     assert code == 0
     assert exit_mock.call_count == 0
-    assert copy_glossary_mock.call_count == 1
+    assert copy_module_mock.call_count == 1
 
 
-def test_run_with_missing_copy_glossary_args(mocker):
-    mocker.patch('toolbox.__main__.copy_glossary')
+def test_run_with_missing_copy_module_args(mocker):
+    mocker.patch('toolbox.__main__.copy_module')
     exit_mock = mocker.patch('sys.exit')
     mock_stderr = mocker.patch('sys.stderr', new_callable=io.StringIO)
     # missing --url-source, should call sys.exit(1)
