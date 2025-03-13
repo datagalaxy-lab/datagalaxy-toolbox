@@ -20,14 +20,12 @@ class DataGalaxyApiModules:
         if module == "Links":
             self.route = "links"
 
-        if workspace["isVersioningEnabled"]:
-            raise Exception('Workspaces with versioning enabled are currently not supported.')
         self.url = url
         self.token = token
         self.workspace = workspace
 
     def list_objects(self, workspace_name: str, include_links=False) -> list:
-        version_id = self.workspace['defaultVersionId']
+        version_id = self.workspace['versionId']
         params = {'versionId': version_id, 'limit': '5000'}
         if include_links is True:
             params['includeLinks'] = 'true'
@@ -61,7 +59,7 @@ class DataGalaxyApiModules:
         if self.module != "DataProcessing":
             raise Exception(f'This method is not available for the module {self.module}')
 
-        version_id = self.workspace['defaultVersionId']
+        version_id = self.workspace['versionId']
         params = {'versionId': version_id, 'parentId': parent_id, 'includeAttributes': 'true'}
         headers = {'Authorization': f"Bearer {self.token}"}
         response = requests.get(f"{self.url}/dataProcessingItem", params=params, headers=headers)
@@ -85,7 +83,7 @@ class DataGalaxyApiModules:
         if object_type not in ["containers", "structures", "fields"]:
             raise Exception('The specified object type does not exist.')
 
-        version_id = self.workspace['defaultVersionId']
+        version_id = self.workspace['versionId']
         if include_links is True:
             params = {'versionId': version_id, 'limit': '5000', 'includeLinks': 'true', 'parentId': parent_id}
         else:
@@ -118,7 +116,7 @@ class DataGalaxyApiModules:
         if mode not in ['primary', 'foreign']:
             raise Exception("Mode not found")
 
-        version_id = self.workspace['defaultVersionId']
+        version_id = self.workspace['versionId']
         headers = {'Authorization': f"Bearer {self.token}"}
         response = requests.get(f"{self.url}/{self.route}/{version_id}/{source_id}/{mode}Keys", headers=headers)
         code = response.status_code
@@ -130,11 +128,12 @@ class DataGalaxyApiModules:
             f'workspace: {workspace_name} for source {source_id}')
         return body_json
 
+    # This is a specific request for Dictionary
     def create_keys(self, workspace_name: str, source_id: str, keys: list, mode='str') -> int:
         if mode not in ['primary', 'foreign']:
             raise Exception("Mode not found")
 
-        version_id = self.workspace['defaultVersionId']
+        version_id = self.workspace['versionId']
         headers = {'Authorization': f"Bearer {self.token}"}
         response = requests.put(f"{self.url}/{self.route}/{version_id}/{source_id}/{mode}Keys", json=keys, headers=headers)
         code = response.status_code
@@ -146,8 +145,9 @@ class DataGalaxyApiModules:
 
         return 0
 
+    # This is a specific request for Dictionary
     def create_source(self, workspace_name: str, source: dict) -> str:
-        version_id = self.workspace['defaultVersionId']
+        version_id = self.workspace['versionId']
         headers = {'Authorization': f"Bearer {self.token}"}
         response = requests.post(f"{self.url}/{self.route}/{version_id}", json=source, headers=headers)
         code = response.status_code
@@ -156,7 +156,7 @@ class DataGalaxyApiModules:
             raise Exception(body_json['error'])
 
         source_id = body_json['id']
-        logging.info(f'create_source - Created {source_id}')
+        logging.info(f'create_source - Created source {source["name"]} with id {source_id}')
 
         return source_id
 
@@ -176,7 +176,7 @@ class DataGalaxyApiModules:
                     for children in tree['children']:
                         remove_technology_code(children)
 
-            version_id = self.workspace['defaultVersionId']
+            version_id = self.workspace['versionId']
             headers = {'Authorization': f"Bearer {self.token}"}
             response = requests.post(f"{self.url}/{self.route}/bulktree/{version_id}", json=bulktree, headers=headers)
             code = response.status_code
@@ -188,6 +188,7 @@ class DataGalaxyApiModules:
 
         return 200
 
+    # This is a specific request for Dictionary
     def bulk_upsert_source_tree(self, workspace_name: str, source: dict, objects: list, tag_value: Optional[str]) -> int:
         batches = create_batches(objects)
 
@@ -201,7 +202,7 @@ class DataGalaxyApiModules:
             if tag_value is not None:
                 bulktree = prune_tree(bulktree, tag_value)
 
-            version_id = self.workspace['defaultVersionId']
+            version_id = self.workspace['versionId']
             headers = {'Authorization': f"Bearer {self.token}"}
             response = requests.post(f"{self.url}/{self.route}/bulktree/{version_id}", json=bulktree, headers=headers)
             code = response.status_code
@@ -217,7 +218,7 @@ class DataGalaxyApiModules:
         if len(ids) < 1:
             logging.warning(f'Nothing to delete on workspace "{workspace_name}" in module {self.module}, aborting.')
             return 0
-        version_id = self.workspace['defaultVersionId']
+        version_id = self.workspace['versionId']
         headers = {'Authorization': f"Bearer {self.token}"}
         response = requests.delete(f"{self.url}/{self.route}/bulk/{version_id}",
                                    json=ids,
@@ -233,7 +234,7 @@ class DataGalaxyApiModules:
     def bulk_create_links(self, workspace_name: str, links: list) -> int:
         # Objects can be in pages, so one POST request per page
         for page in links:
-            version_id = self.workspace['defaultVersionId']
+            version_id = self.workspace['versionId']
             headers = {'Authorization': f"Bearer {self.token}"}
             response = requests.post(f"{self.url}/{self.route}/bulktree/{version_id}", json=page,
                                      headers=headers)
