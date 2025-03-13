@@ -5,16 +5,10 @@ import sys
 from toolbox.commands.copy_attributes import copy_attributes_parse, copy_attributes
 from toolbox.commands.copy_technologies import copy_technologies_parse, copy_technologies
 from toolbox.commands.copy_screens import copy_screens_parse, copy_screens
-from toolbox.commands.copy_usages import copy_usages, copy_usages_parse
-from toolbox.commands.delete_usages import delete_usages_parse, delete_usages
-from toolbox.commands.copy_dataprocessings import copy_dataprocessings, copy_dataprocessings_parse
-from toolbox.commands.delete_dataprocessings import delete_dataprocessings, delete_dataprocessings_parse
 from toolbox.commands.delete_attributes import delete_attributes_parse, delete_attributes
-from toolbox.commands.copy_glossary import copy_glossary_parse, copy_glossary
-from toolbox.commands.delete_glossary import delete_glossary_parse, delete_glossary
-from toolbox.commands.copy_dictionary import copy_dictionary, copy_dictionary_parse
-from toolbox.commands.delete_dictionary import delete_dictionary, delete_dictionary_parse
+from toolbox.commands.copy_module import copy_module, copy_glossary_parse, copy_dictionary_parse, copy_dataprocessings_parse, copy_usages_parse
 from toolbox.commands.copy_links import copy_links, copy_links_parse
+from toolbox.commands.delete_module import delete_module, delete_glossary_parse, delete_dictionary_parse, delete_dataprocessings_parse, delete_usages_parse
 
 
 def run(args):
@@ -29,19 +23,23 @@ def run(args):
     parser.add_argument("-v", "--verbose", help="increase output verbosity",
                         action="store_true")
     subparsers = parser.add_subparsers(help='sub-command help', dest='subparsers_name')
+    # Clientspace
     copy_attributes_parse(subparsers)
     copy_technologies_parse(subparsers)
     copy_screens_parse(subparsers)
     delete_attributes_parse(subparsers)
+    # Copy modules
     copy_glossary_parse(subparsers)
-    delete_glossary_parse(subparsers)
-    copy_usages_parse(subparsers)
-    delete_usages_parse(subparsers)
     copy_dictionary_parse(subparsers)
-    delete_dictionary_parse(subparsers)
     copy_dataprocessings_parse(subparsers)
-    delete_dataprocessings_parse(subparsers)
+    copy_usages_parse(subparsers)
     copy_links_parse(subparsers)
+    # Delete modules
+    delete_glossary_parse(subparsers)
+    delete_dictionary_parse(subparsers)
+    delete_dataprocessings_parse(subparsers)
+    delete_usages_parse(subparsers)
+
     # parse some argument lists
     result = parser.parse_args(args)
     if result.verbose:
@@ -94,86 +92,73 @@ def run(args):
         logging.info("<<< delete_attributes")
         return 0
 
-    # Modules
-
+    # Copy modules
     if result.subparsers_name == 'copy-glossary':
         logging.info(">>> copy_glossary")
-        copy_glossary(
+        copy_module(
+            "Glossary",
             result.url_source,
             result.url_target,
             result.token_source,
             result.token_target,
             result.workspace_source,
+            result.version_source,
             result.workspace_target,
+            result.version_target,
             result.tag_value
         )
         logging.info("<<< copy_glossary")
         return 0
 
-    if result.subparsers_name == 'delete-glossary':
-        logging.info(">>> delete_glossary")
-        delete_glossary(result.url, result.token, result.workspace)
-        logging.info("<<< delete_glossary")
-        return 0
-
-    if result.subparsers_name == 'copy-usages':
-        logging.info(">>> copy_usages")
-        copy_usages(
-            result.url_source,
-            result.url_target,
-            result.token_source,
-            result.token_target,
-            result.workspace_source,
-            result.workspace_target,
-            result.tag_value
-        )
-        logging.info("<<< copy_usages")
-        return 0
-
-    if result.subparsers_name == 'delete-usages':
-        logging.info(">>> delete_usages")
-        delete_usages(result.url, result.token, result.workspace)
-        logging.info("<<< delete_usages")
-        return 0
-
     if result.subparsers_name == 'copy-dictionary':
         logging.info(">>> copy_dictionary")
-        copy_dictionary(
+        copy_module(
+            "Dictionary",
             result.url_source,
             result.url_target,
             result.token_source,
             result.token_target,
             result.workspace_source,
+            result.version_source,
             result.workspace_target,
+            result.version_target,
             result.tag_value
         )
         logging.info("<<< copy_dictionary")
         return 0
 
-    if result.subparsers_name == 'delete-dictionary':
-        logging.info(">>> delete_dictionary")
-        delete_dictionary(result.url, result.token, result.workspace)
-        logging.info("<<< delete_dictionary")
-        return 0
-
     if result.subparsers_name == 'copy-dataprocessings':
         logging.info(">>> copy_dataprocessings")
-        copy_dataprocessings(
+        copy_module(
+            "DataProcessing",
             result.url_source,
             result.url_target,
             result.token_source,
             result.token_target,
             result.workspace_source,
+            result.version_source,
             result.workspace_target,
+            result.version_target,
             result.tag_value
         )
         logging.info("<<< copy_dataprocessings")
         return 0
 
-    if result.subparsers_name == 'delete-dataprocessings':
-        logging.info(">>> delete_dataprocessings")
-        delete_dataprocessings(result.url, result.token, result.workspace)
-        logging.info("<<< delete_dataprocessings")
+    if result.subparsers_name == 'copy-usages':
+        logging.info(">>> copy_usages")
+        copy_module(
+            "Uses",
+            result.url_source,
+            result.url_target,
+            result.token_source,
+            result.token_target,
+            result.workspace_source,
+            result.version_source,
+            result.workspace_target,
+            result.version_target,
+            result.tag_value
+        )
+        logging.info("<<< copy_usages")
         return 0
 
     if result.subparsers_name == 'copy-links':
@@ -184,9 +169,60 @@ def run(args):
             result.token_source,
             result.token_target,
             result.workspace_source,
-            result.workspace_target
+            result.version_source,
+            result.workspace_target,
+            result.version_target
         )
         logging.info("<<< copy_links")
+        return 0
+
+    # Delete modules
+    if result.subparsers_name == 'delete-glossary':
+        logging.info(">>> delete_glossary")
+        delete_module(
+            "Glossary",
+            result.url,
+            result.token,
+            result.workspace,
+            result.version
+        )
+        logging.info("<<< delete_glossary")
+        return 0
+
+    if result.subparsers_name == 'delete-dictionary':
+        logging.info(">>> delete_dictionary")
+        delete_module(
+            "Dictionary",
+            result.url,
+            result.token,
+            result.workspace,
+            result.version
+        )
+        logging.info("<<< delete_dictionary")
+        return 0
+
+    if result.subparsers_name == 'delete-dataprocessings':
+        logging.info(">>> delete_dataprocessings")
+        delete_module(
+            "DataProcessing",
+            result.url,
+            result.token,
+            result.workspace,
+            result.version
+        )
+        logging.info("<<< delete_dataprocessings")
+        return 0
+
+    if result.subparsers_name == 'delete-usages':
+        logging.info(">>> delete_usages")
+        delete_module(
+            "Uses",
+            result.url,
+            result.token,
+            result.workspace,
+            result.version
+        )
+        logging.info("<<< delete_usages")
         return 0
 
     parser.print_help(sys.stderr)

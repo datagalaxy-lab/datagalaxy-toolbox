@@ -2,7 +2,7 @@ import logging
 from typing import Optional
 
 from toolbox.api.datagalaxy_api_modules import DataGalaxyApiModules
-from toolbox.api.datagalaxy_api_workspaces import DataGalaxyApiWorkspace
+from toolbox.commands.utils import config_workspace
 
 
 def copy_links(url_source: str,
@@ -10,50 +10,60 @@ def copy_links(url_source: str,
                token_source: str,
                token_target: Optional[str],
                workspace_source_name: str,
-               workspace_target_name: str) -> int:
+               version_source_name: Optional[str],
+               workspace_target_name: str,
+               version_target_name: Optional[str]) -> int:
     if token_target is None:
         token_target = token_source
 
     if url_target is None:
         url_target = url_source
 
-    workspaces_api_on_source_env = DataGalaxyApiWorkspace(
+    # Source workspace
+    source_workspace = config_workspace(
+        mode="source",
         url=url_source,
-        token=token_source)
-    source_workspace = workspaces_api_on_source_env.get_workspace(workspace_source_name)
-    if source_workspace is None:
-        raise Exception(f'workspace {workspace_source_name} does not exist')
-
-    workspaces_api_on_target_env = DataGalaxyApiWorkspace(
-        url=url_target,
-        token=token_target
+        token=token_source,
+        workspace_name=workspace_source_name,
+        version_name=version_source_name
     )
-    target_workspace = workspaces_api_on_target_env.get_workspace(workspace_target_name)
-    if target_workspace is None:
-        raise Exception(f'workspace {workspace_target_name} does not exist')
+    if not source_workspace:
+        return 1
 
+    # Target workspace
+    target_workspace = config_workspace(
+        mode="target",
+        url=url_target,
+        token=token_target,
+        workspace_name=workspace_target_name,
+        version_name=version_target_name
+    )
+    if not target_workspace:
+        return 1
+
+    # Fetch all objects from source workspace
     source_glossary_api = DataGalaxyApiModules(
         url=url_source,
         token=token_source,
-        workspace=workspaces_api_on_source_env.get_workspace(workspace_source_name),
+        workspace=source_workspace,
         module="Glossary"
     )
     source_dictionary_api = DataGalaxyApiModules(
         url=url_source,
         token=token_source,
-        workspace=workspaces_api_on_source_env.get_workspace(workspace_source_name),
+        workspace=source_workspace,
         module="Dictionary"
     )
     source_dataprocessings_api = DataGalaxyApiModules(
         url=url_source,
         token=token_source,
-        workspace=workspaces_api_on_source_env.get_workspace(workspace_source_name),
+        workspace=source_workspace,
         module="DataProcessing"
     )
     source_usages_api = DataGalaxyApiModules(
         url=url_source,
         token=token_source,
-        workspace=workspaces_api_on_source_env.get_workspace(workspace_source_name),
+        workspace=source_workspace,
         module="Uses"
     )
 
@@ -86,7 +96,7 @@ def copy_links(url_source: str,
         module="Links"
     )
 
-    # # Creating links in target workspace
+    # Creating links in target workspace
     target_links_api.bulk_create_links(workspace_name=workspace_target_name, links=link_batches)
     return 0
 
@@ -188,7 +198,15 @@ def copy_links_parse(subparsers):
         help='workspace source name',
         required=True)
     copy_links_parse.add_argument(
+        '--version-source',
+        type=str,
+        help='version source name')
+    copy_links_parse.add_argument(
         '--workspace-target',
         type=str,
         help='workspace target name',
         required=True)
+    copy_links_parse.add_argument(
+        '--version-target',
+        type=str,
+        help='version target name')
