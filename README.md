@@ -34,7 +34,7 @@ Note that the workspaces can be on different clientspaces.
   3. `copy-links` (this command will fail if you haven't copied all the objects before)
 - All module copy commands will fail if the source objects have a custom technology value that do not exist in the target clientspace (there is no issue if you run the module copy in the same clientspace). As a consequence, we suggest that you run `copy-technologies` before copying modules. 
 - All copy module commands will fail if the source objects have a custom tag value that do not exist in the target clientspace (there is no issue if you run the module copy in the same clientspace). As a consequence, we suggest that you run `copy-attributes` before copying modules. 
-- If you have a versioned workspace (source or target), please enter the according option with `--version-target` and/or `--version-target`.
+- If you have a versioned workspace (source or target), please enter the according option with `--version-source` and/or `--version-target`.
 
 ## Installation
 
