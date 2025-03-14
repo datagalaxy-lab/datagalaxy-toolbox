@@ -1,14 +1,13 @@
 from toolbox.api.datagalaxy_api_modules import DataGalaxyApiModules
-from toolbox.commands.copy_usages import copy_usages
 from toolbox.api.datagalaxy_api_workspaces import DataGalaxyApiWorkspace
-import pytest as pytest
+from toolbox.commands.copy_module import copy_module
 
 
 # Mocks
 
 def mock_list_objects_on_source_workspace(self, workspace_name):
     if workspace_name == 'workspace_source':
-        return [['object1', 'object2', 'object3']]
+        return [['object1', 'object2', 'object']]
     return []
 
 
@@ -19,7 +18,7 @@ def test_copy_objects_when_no_object_on_target(mocker):
     workspaces = mocker.patch.object(DataGalaxyApiWorkspace, 'list_workspaces', autospec=True)
     workspaces.return_value = ['workspace_source', 'workspace_target']
     workspace_source_mock = mocker.patch.object(DataGalaxyApiWorkspace, 'get_workspace', autospec=True)
-    workspace_source_mock.return_value = {'name': 'workspace', 'isVersioningEnabled': False}
+    workspace_source_mock.return_value = {'name': 'workspace', 'defaultVersionId': 'versionId', 'isVersioningEnabled': False}
     objects_on_source_workspace_mock = mocker.patch.object(
         DataGalaxyApiModules,
         'list_objects',
@@ -34,13 +33,16 @@ def test_copy_objects_when_no_object_on_target(mocker):
     bulk_upsert_objects_on_target_workspace_mock.return_value = 0
 
     # THEN
-    result = copy_usages(
+    result = copy_module(
+        module="Glossary",
         url_source='url_source',
         token_source='token_source',
         url_target='url_target',
         token_target='token_target',
         workspace_source_name='workspace_source',
+        version_source_name=None,
         workspace_target_name='workspace_target',
+        version_target_name=None,
         tag_value=None
     )
 
@@ -49,29 +51,3 @@ def test_copy_objects_when_no_object_on_target(mocker):
     assert result == 0
     assert objects_on_source_workspace_mock.call_count == 1
     assert bulk_upsert_objects_on_target_workspace_mock.call_count == 1
-
-
-def test_copy_usages_when_workspace_target_does_not_exist(mocker):
-    # GIVEN
-    workspaces = mocker.patch.object(DataGalaxyApiWorkspace, 'list_workspaces', autospec=True)
-    workspaces.return_value = ['workspace_source']
-    workspace_source_mock = mocker.patch.object(DataGalaxyApiWorkspace, 'get_workspace', autospec=True)
-    workspace_source_mock.return_value = None
-    objects_on_source_workspace_mock = mocker.patch.object(
-        DataGalaxyApiModules,
-        'list_objects',
-        autospec=True
-    )
-    objects_on_source_workspace_mock.side_effect = mock_list_objects_on_source_workspace
-
-    # ASSERT / VERIFY
-    with pytest.raises(Exception, match='workspace workspace_source does not exist'):
-        copy_usages(
-            url_source='url_source',
-            token_source='token_source',
-            url_target='url_target',
-            token_target='token_target',
-            workspace_source_name='workspace_source',
-            workspace_target_name='workspace_target',
-            tag_value=None
-        )

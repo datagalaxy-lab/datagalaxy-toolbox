@@ -34,6 +34,7 @@ Note that the workspaces can be on different clientspaces.
   3. `copy-links` (this command will fail if you haven't copied all the objects before)
 - All module copy commands will fail if the source objects have a custom technology value that do not exist in the target clientspace (there is no issue if you run the module copy in the same clientspace). As a consequence, we suggest that you run `copy-technologies` before copying modules. 
 - All copy module commands will fail if the source objects have a custom tag value that do not exist in the target clientspace (there is no issue if you run the module copy in the same clientspace). As a consequence, we suggest that you run `copy-attributes` before copying modules. 
+- If you have a versioned workspace (source or target), please enter the according option with `--version-target` and/or `--version-target`.
 
 ## Installation
 
@@ -54,6 +55,8 @@ If you want to use the DataGalaxy Toolbox on MacOS or Unix, you need to build a 
 - `--token-target` - A DataGalaxy Token from the Token from target environnement
 - `--workspace-source` - The name of the source workspace
 - `--workspace-target` - The name of the target workspace
+- `--version-source` - The name of the version of the source workspace
+- `--version-target` - The name of the version of the target workspace
 - `--tag-value` - Filter objects on a specific tag
 
 
@@ -83,13 +86,15 @@ datagalaxy-toolbox.exe delete-attributes [-h] --url URL --token TOKEN
 #### copy-screens
 
 ```
-datagalaxy-toolbox.exe copy-screens [-h] --url-source URL_SOURCE [--url-target URL_TARGET] --token-source TOKEN_SOURCE [--token-target TOKEN_TARGET] [--workspace-source WORKSPACE_SOURCE] [--workspace-target WORKSPACE_TARGET]
+datagalaxy-toolbox.exe copy-screens [-h] --url-source URL_SOURCE [--url-target URL_TARGET] --token-source TOKEN_SOURCE [--token-target TOKEN_TARGET] [--workspace-source WORKSPACE_SOURCE] [--workspace-target WORKSPACE_TARGET] [--version-source VERSION_SOURCE] [--version-target VERSION_TARGET] 
 ```
  `--url-target` and `--token-target` are optional if the copy is made on the same clientspace.
 
  `--workspace-source` is optional if the copy is made from a clientspace.
 
  `--workspace-target` is optional if the copy is made to a clientspace.
+
+ `--version-source` and `--version-target` are only for versioned workspaces.
  
  4 scenarios are possible:
   - Copy screens from a clientspace to another clientspace (different clientspaces)
@@ -104,69 +109,83 @@ datagalaxy-toolbox.exe copy-screens [-h] --url-source URL_SOURCE [--url-target U
 #### copy-glossary
 
 ```
-datagalaxy-toolbox.exe copy-glossary [-h] --url-source URL_SOURCE --token-source TOKEN_SOURCE [--url-target URL_TARGET] [--token-target TOKEN_TARGET] --workspace-source WORKSPACE_SOURCE --workspace-target WORKSPACE_TARGET [--tag-value TAG_NAME]
+datagalaxy-toolbox.exe copy-glossary [-h] --url-source URL_SOURCE --token-source TOKEN_SOURCE [--url-target URL_TARGET] [--token-target TOKEN_TARGET] --workspace-source WORKSPACE_SOURCE --workspace-target WORKSPACE_TARGET [--workspace-target WORKSPACE_TARGET] [--version-source VERSION_SOURCE] [--version-target VERSION_TARGET] [--tag-value TAG_NAME]
 ```
  `--url-target` and `--token-target` are optional if the copy is made on the same clientspace.
+
+ `--version-source` and `--version-target` are only for versioned workspaces.
 
 
 #### copy-dictionary
 
 ```
-datagalaxy-toolbox.exe copy-dictionary [-h] --url-source URL_SOURCE --token-source TOKEN_SOURCE [--url-target URL_TARGET] [--token-target TOKEN_TARGET] --workspace-source WORKSPACE_SOURCE --workspace-target WORKSPACE_TARGET [--tag-value TAG_NAME]
+datagalaxy-toolbox.exe copy-dictionary [-h] --url-source URL_SOURCE --token-source TOKEN_SOURCE [--url-target URL_TARGET] [--token-target TOKEN_TARGET] --workspace-source WORKSPACE_SOURCE --workspace-target WORKSPACE_TARGET [--workspace-target WORKSPACE_TARGET] [--version-source VERSION_SOURCE] [--version-target VERSION_TARGET] [--tag-value TAG_NAME]
 ```
  `--url-target` and `--token-target` are optional if the copy is made on the same clientspace.
+
+ `--version-source` and `--version-target` are only for versioned workspaces.
 
 
 #### copy-dataprocessings
 
 ```
-datagalaxy-toolbox.exe copy-dataprocessings [-h] --url-source URL_SOURCE --token-source TOKEN_SOURCE [--url-target URL_TARGET] [--token-target TOKEN_TARGET] --workspace-source WORKSPACE_SOURCE --workspace-target WORKSPACE_TARGET [--tag-value TAG_NAME]
+datagalaxy-toolbox.exe copy-dataprocessings [-h] --url-source URL_SOURCE --token-source TOKEN_SOURCE [--url-target URL_TARGET] [--token-target TOKEN_TARGET] --workspace-source WORKSPACE_SOURCE --workspace-target WORKSPACE_TARGET [--workspace-target WORKSPACE_TARGET] [--version-source VERSION_SOURCE] [--version-target VERSION_TARGET] [--tag-value TAG_NAME]
 ```
  `--url-target` and `--token-target` are optional if the copy is made on the same clientspace.
+
+ `--version-source` and `--version-target` are only for versioned workspaces.
 
 
 #### copy-usages
 
 ```
-datagalaxy-toolbox.exe copy-usages [-h] --url-source URL_SOURCE --token-source TOKEN_SOURCE [--url-target URL_TARGET] [--token-target TOKEN_TARGET] --workspace-source WORKSPACE_SOURCE --workspace-target WORKSPACE_TARGET [--tag-value TAG_NAME]
+datagalaxy-toolbox.exe copy-usages [-h] --url-source URL_SOURCE --token-source TOKEN_SOURCE [--url-target URL_TARGET] [--token-target TOKEN_TARGET] --workspace-source WORKSPACE_SOURCE --workspace-target WORKSPACE_TARGET [--workspace-target WORKSPACE_TARGET] [--version-source VERSION_SOURCE] [--version-target VERSION_TARGET] [--tag-value TAG_NAME]
 ```
  `--url-target` and `--token-target` are optional if the copy is made on the same clientspace.
+
+ `--version-source` and `--version-target` are only for versioned workspaces.
 
 
 #### copy-links
 
 ```
-datagalaxy-toolbox.exe copy-links [-h] --url-source URL_SOURCE --token-source TOKEN_SOURCE [--url-target URL_TARGET] [--token-target TOKEN_TARGET] --workspace-source WORKSPACE_SOURCE --workspace-target WORKSPACE_TARGET
+datagalaxy-toolbox.exe copy-links [-h] --url-source URL_SOURCE --token-source TOKEN_SOURCE [--url-target URL_TARGET] [--token-target TOKEN_TARGET] --workspace-source WORKSPACE_SOURCE --workspace-target WORKSPACE_TARGET [--workspace-target WORKSPACE_TARGET] [--version-source VERSION_SOURCE] [--version-target VERSION_TARGET] 
 ```
  `--url-target` and `--token-target` are optional if the copy is made on the same clientspace.
+
+ `--version-source` and `--version-target` are only for versioned workspaces.
 
 
 #### delete-glossary
 
 ```
-datagalaxy-toolbox.exe delete-glossary [-h] --url URL --token TOKEN --workspace WORKSPACE
+datagalaxy-toolbox.exe delete-glossary [-h] --url URL --token TOKEN --workspace WORKSPACE [--workspace-target WORKSPACE_TARGET] [--version-source VERSION_SOURCE] [--version-target VERSION_TARGET] 
 ```
+ `--version-source` and `--version-target` are only for versioned workspaces.
 
 
 #### delete-dictionary
 
 ```
-datagalaxy-toolbox.exe delete-dictionary [-h] --url URL --token TOKEN --workspace WORKSPACE
+datagalaxy-toolbox.exe delete-dictionary [-h] --url URL --token TOKEN --workspace WORKSPACE [--workspace-target WORKSPACE_TARGET] [--version-source VERSION_SOURCE] [--version-target VERSION_TARGET] 
 ```
+ `--version-source` and `--version-target` are only for versioned workspaces.
 
 
 #### delete-dataprocessings
 
 ```
-datagalaxy-toolbox.exe delete-dataprocessings [-h] --url URL --token TOKEN --workspace WORKSPACE
+datagalaxy-toolbox.exe delete-dataprocessings [-h] --url URL --token TOKEN --workspace WORKSPACE [--workspace-target WORKSPACE_TARGET] [--version-source VERSION_SOURCE] [--version-target VERSION_TARGET] 
 ```
+ `--version-source` and `--version-target` are only for versioned workspaces.
 
 
 #### delete-usages
 
 ```
-datagalaxy-toolbox.exe delete-usages [-h] --url URL --token TOKEN --workspace WORKSPACE
+datagalaxy-toolbox.exe delete-usages [-h] --url URL --token TOKEN --workspace WORKSPACE [--workspace-target WORKSPACE_TARGET] [--version-source VERSION_SOURCE] [--version-target VERSION_TARGET] 
 ```
+ `--version-source` and `--version-target` are only for versioned workspaces.
 
 
 

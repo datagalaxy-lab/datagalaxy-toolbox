@@ -13,7 +13,7 @@ class DataGalaxyApiScreen:
         if self.workspace is None:
             response = requests.get(f"{self.url}/attributes/screens", headers=headers)
         else:
-            params = {'versionId': self.workspace['defaultVersionId']}
+            params = {'versionId': self.workspace['versionId']}
             response = requests.get(f"{self.url}/attributes/screens", headers=headers, params=params)
         code = response.status_code
         body_json = response.json()
@@ -30,7 +30,7 @@ class DataGalaxyApiScreen:
         if self.workspace is None:
             response = requests.put(f"{self.url}/attributes/screens/{dataType}/{type}", json=categories, headers=headers)
         else:
-            params = {'versionId': self.workspace['defaultVersionId']}
+            params = {'versionId': self.workspace['versionId']}
             response = requests.put(f"{self.url}/attributes/screens/{dataType}/{type}", json=categories, headers=headers, params=params)
         code = response.status_code
         body_json = response.json()

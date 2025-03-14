@@ -1,4 +1,5 @@
 import requests as requests
+import logging
 
 
 class DataGalaxyApiWorkspace:
@@ -29,4 +30,31 @@ class DataGalaxyApiWorkspace:
             if workspace['name'] == name:
                 return workspace
 
-        raise Exception(f'Workspace {name} does not exist, workspaces found: {workspaces}')
+        logging.error(f'get_workspace - Workspace {name} does not exist, workspaces found: {workspaces}')
+        return None
+
+    def list_versions(self, id_workspace: str) -> dict:
+        headers = {'Authorization': f"Bearer {self.token}", 'limit': '5000'}
+        response = requests.get(f"{self.url}/workspaces/{id_workspace}/versions", headers=headers)
+        code = response.status_code
+        body_json = response.json()
+        if code == 200:
+            versions = []
+            for version in body_json["results"]:
+                versions.append(version)
+            return versions
+
+        if 400 <= code < 500:
+            raise Exception(body_json['error'])
+
+        raise Exception(f'Unexpected error, code: {code}')
+
+    def get_version(self, id_workspace: str, name: str) -> dict:
+        versions = []
+        for version in self.list_versions(id_workspace):
+            versions.append(version['versionName'])
+            if version['versionName'] == name:
+                return version
+
+        logging.error(f'get_version - Version {name} does not exist, versions found: {versions}')
+        return None
