@@ -98,6 +98,17 @@ class DataGalaxyApiAttributes:
 
         return body_json
 
+    def update_attribute(self, data_type: str, attribute_key: str, attribute: dict) -> dict:
+        headers = {'Authorization': f"Bearer {self.token}"}
+        response = requests.put(f"{self.url}/attributes/{data_type}/{attribute_key}", json=attribute, headers=headers)
+        code = response.status_code
+        body_json = response.json()
+
+        if code != 200:
+            raise Exception(body_json)
+
+        return body_json
+
     def delete_attribute(self, data_type: AttributeDataType, attribute_key: str) -> bool:
         logging.debug(f"delete_attribute- delete_attribute(data_type: {data_type}, attribute_key: {attribute_key})")
         headers = {'Authorization': f"Bearer {self.token}"}

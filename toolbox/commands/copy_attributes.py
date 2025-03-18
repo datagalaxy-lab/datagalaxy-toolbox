@@ -12,17 +12,17 @@ def copy_attributes(url_source: str,
     custom_source_attributes = custom_attributes(attributes_api_source)
     logging.debug(f"copy_attributes - custom_source_attributes: {custom_source_attributes}")
     logging.info(
-        f'copy_attributes - {len(custom_source_attributes)} custom attributes found on source client_space')
+        f'copy_attributes - {len(custom_source_attributes)} custom attributes found on source clientspace')
     if len(custom_source_attributes) == 0:
-        logging.warning('copy_attributes - no custom attribute found on client_space, aborting.')
+        logging.warning('copy_attributes - No custom attribute found on clientspace, aborting.')
         return 0
 
     custom_target_attributes = custom_attributes(attributes_api_target)
     logging.info(
-        f'copy_attributes - {len(custom_target_attributes)} custom attributes found on target client_space')
+        f'copy_attributes - {len(custom_target_attributes)} custom attributes found on target clientspace')
 
     duplicates = find_duplicates(custom_source_attributes, custom_target_attributes)
-    logging.warning(f'copy_attributes - {len(duplicates)} duplicates found on target client_space: {duplicates}')
+    logging.warning(f'copy_attributes - {len(duplicates)} duplicates found on target clientspace: {duplicates}')
     source_attributes_to_create = list(filter(lambda x: x['name'] not in duplicates, custom_source_attributes))
 
     # These attribute formats require a special behavior : we need to fetch their values and create them in a separate API call
@@ -32,10 +32,12 @@ def copy_attributes(url_source: str,
     source_attributes_to_create_with_values = list(filter(lambda x: x['format'] in specific_attribute_formats, source_attributes_to_create))
 
     # Bulk create attributes that do not have values
+    logging.info('copy_attributes - Copying custom attributes (without values)')
     attributes_created_count = attributes_api_target.bulk_create(source_attributes_to_create_without_values)
     logging.info(
-        f'copy_attributes - {attributes_created_count} custom attributes copied from source client_space to target client_space')
+        f'copy_attributes - {attributes_created_count} custom attributes (without values) copied from source clientspace to target clientspace')
 
+    logging.info('copy_attributes - Copying custom attributes (with values)')
     for attribute in source_attributes_to_create_with_values:
         format = attribute['format']
         data_type = attribute['dataType']
@@ -45,14 +47,23 @@ def copy_attributes(url_source: str,
         # ValueList expects an array of strings
         if format == "ValueList":
             values = list(map(lambda x: x['key'], values))
+        # Update default value after creation
+        default_value = None
+        if "defaultValue" in attribute:
+            default_value = attribute["defaultValue"]
+            del attribute["defaultValue"]
         # Create attribute in target
         new_attribute = attributes_api_target.create_attribute(attribute=attribute)
         # Create values in target
-        attribute_key = new_attribute['attributeKey']
-        attributes_api_target.create_values(data_type=data_type, attribute_key=attribute_key, values=values)
+        if values:
+            attribute_key = new_attribute['attributeKey']
+            attributes_api_target.create_values(data_type=data_type, attribute_key=attribute_key, values=values)
+            if default_value:
+                logging.info(f"copy_attributes - Updating default value of attribute {attribute['name']}")
+                attributes_api_target.update_attribute(data_type=data_type, attribute_key=attribute_key, attribute={'defaultValue': default_value})
 
     logging.info(
-        f'copy_attributes - {len(source_attributes_to_create_with_values)} custom attributes (with values) copied from client_space to target client_space')
+        f'copy_attributes - {len(source_attributes_to_create_with_values)} custom attributes (with values) copied from clientspace to target clientspace')
 
     return attributes_created_count
 
