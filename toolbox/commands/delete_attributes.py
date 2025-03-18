@@ -7,10 +7,10 @@ def delete_attributes(url: str, token: str) -> bool:
     attributes_api_target = DataGalaxyApiAttributes(url=url, token=token)
     custom_target_attributes = custom_attributes(attributes_api_target)
     logging.info(
-        f'delete_attributes - {len(custom_target_attributes)} custom attributes found on client_space')
+        f'delete_attributes - {len(custom_target_attributes)} custom attributes found on clientspace')
     attributes_api_target.delete_all_attributes(custom_target_attributes)
     logging.info(
-        f'delete_attributes - {len(custom_target_attributes)} custom attributes deleted on client_space')
+        f'delete_attributes - {len(custom_target_attributes)} custom attributes deleted on clientspace')
     return True
 
 
