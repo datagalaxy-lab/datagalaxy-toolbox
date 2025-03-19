@@ -1,4 +1,5 @@
 from typing import Optional
+import logging
 
 from toolbox.api.datagalaxy_api_modules import DataGalaxyApiModules
 from toolbox.commands.utils import config_workspace
@@ -62,6 +63,9 @@ def copy_module(module: str,
 
     # Fetch objects from source workspace
     source_objects = source_module_api.list_objects(workspace_source_name)
+    if source_objects == [[]]:
+        logging.warning(f'copy-module - No object in source workspace {workspace_source_name}, aborting.')
+        return 1
 
     # Specific for Dictionary
     if module == "Dictionary":
