@@ -34,8 +34,9 @@ class DataGalaxyApiWorkspace:
         return None
 
     def list_versions(self, id_workspace: str) -> dict:
-        headers = {'Authorization': f"Bearer {self.token}", 'limit': '5000'}
-        response = requests.get(f"{self.url}/workspaces/{id_workspace}/versions", headers=headers)
+        headers = {'Authorization': f"Bearer {self.token}"}
+        params = {'limit': '5000'}
+        response = requests.get(f"{self.url}/workspaces/{id_workspace}/versions", headers=headers, params=params)
         code = response.status_code
         body_json = response.json()
         if code == 200:
