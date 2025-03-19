@@ -39,7 +39,7 @@ class DataGalaxyApiModules:
             raise Exception(body_json['error'])
         logging.info(
             f'list_objects - {len(body_json["results"])} objects found on '
-            f'workspace "{workspace_name}" in module {self.module}')
+            f'workspace {workspace_name} in module {self.module}')
         result_pages = [body_json['results']]
         next_page = body_json["next_page"]
         while next_page is not None:
@@ -49,7 +49,7 @@ class DataGalaxyApiModules:
             body_json = response.json()
             logging.info(
                 f'list_objects - {len(body_json["results"])} objects found on '
-                f'workspace "{workspace_name}" in module {self.module}')
+                f'workspace {workspace_name} in module {self.module}')
             next_page = body_json["next_page"]
             result_pages.append(body_json['results'])
         return result_pages
