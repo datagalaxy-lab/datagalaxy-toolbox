@@ -103,30 +103,33 @@ def copy_module(module: str,
                         }
                         pks.append(pk)
                 # FK
-                for foreign_keys in foreign_keys:
-                    fk_technical_name = foreign_keys['technicalName']
-                    fk_display_name = foreign_keys['displayName']
-                    pk_technical_name = foreign_keys['primaryKey']['technicalName']
-                    pk_table_id = foreign_keys['parents']['structure']['id']
+                for foreign_key in foreign_keys:
+                    fk_technical_name = foreign_key['technicalName']
+                    fk_display_name = foreign_key['displayName']
+                    if len(foreign_key['columns']) < 1:
+                        logging.warn(f"FK {fk_technical_name} is a functional relationship, ignoring")
+                        continue
+                    pk_technical_name = foreign_key['primaryKey']['technicalName']
+                    pk_table_id = foreign_key['parents']['structure']['id']
                     pk_table_path = ""
                     for page in structures:
                         for table in page:
                             if table["id"] == pk_table_id:
                                 pk_table_path = table["path"]
-                    fk_table_id = foreign_keys['children']['structure']['id']
+                    fk_table_id = foreign_key['children']['structure']['id']
                     fk_table_path = ""
                     for page in structures:
                         for table in page:
                             if table["id"] == fk_table_id:
                                 fk_table_path = table["path"]
-                    parent_columns = foreign_keys['parents']['columns']
+                    parent_columns = foreign_key['parents']['columns']
                     if len(parent_columns) > 1:
                         # print("More than 1 column")
                         continue
                     for parent_column in parent_columns:
                         pk_column_name = parent_column['technicalName']
 
-                    children_columns = foreign_keys['children']['columns']
+                    children_columns = foreign_key['children']['columns']
                     if len(children_columns) > 1:
                         # print("More than 1 column, ignoring this one")
                         continue
