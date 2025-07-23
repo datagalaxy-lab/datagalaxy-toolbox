@@ -103,30 +103,33 @@ def copy_module(module: str,
                         }
                         pks.append(pk)
                 # FK
-                for foreign_keys in foreign_keys:
-                    fk_technical_name = foreign_keys['technicalName']
-                    fk_display_name = foreign_keys['displayName']
-                    pk_technical_name = foreign_keys['primaryKey']['technicalName']
-                    pk_table_id = foreign_keys['parents']['structure']['id']
+                for foreign_key in foreign_keys:
+                    fk_technical_name = foreign_key['technicalName']
+                    fk_display_name = foreign_key['displayName']
+                    if len(foreign_key['columns']) < 1:
+                        logging.warn(f"FK {fk_technical_name} is a functional relationship, ignoring")
+                        continue
+                    pk_technical_name = foreign_key['primaryKey']['technicalName']
+                    pk_table_id = foreign_key['parents']['structure']['id']
                     pk_table_path = ""
                     for page in structures:
                         for table in page:
                             if table["id"] == pk_table_id:
                                 pk_table_path = table["path"]
-                    fk_table_id = foreign_keys['children']['structure']['id']
+                    fk_table_id = foreign_key['children']['structure']['id']
                     fk_table_path = ""
                     for page in structures:
                         for table in page:
                             if table["id"] == fk_table_id:
                                 fk_table_path = table["path"]
-                    parent_columns = foreign_keys['parents']['columns']
+                    parent_columns = foreign_key['parents']['columns']
                     if len(parent_columns) > 1:
                         # print("More than 1 column")
                         continue
                     for parent_column in parent_columns:
                         pk_column_name = parent_column['technicalName']
 
-                    children_columns = foreign_keys['children']['columns']
+                    children_columns = foreign_key['children']['columns']
                     if len(children_columns) > 1:
                         # print("More than 1 column, ignoring this one")
                         continue
@@ -217,13 +220,15 @@ def handle_dpis(objects: list, module_api, workspace_name: str):
                         items[item_index]['outputs'][output_index]['entityPath'] = output['path']
                 else:
                     items[item_index]['outputs'] = []
-                # there is a problem with dpi types, we must map them to the correct value (accepted by the API)
+                # Mapping some DPI types
                 if item['type'] == "Search":
                     items[item_index]['type'] = "Lookup"
                 if item['type'] == "ConstantVariable":
-                    items[item_index]['type'] = "Variable"
+                    # items[item_index]['type'] = "Variable" (temporary)
+                    items[item_index]['type'] = "Undefined"
                 if item['type'] == "Calculation":
-                    items[item_index]['type'] = "AnalyticalCalculation"
+                    # items[item_index]['type'] = "AnalyticalCalculation" (temporary)
+                    items[item_index]['type'] = "Undefined"
             page[dp_index]['dataProcessingItems'] = items
         objects[page_index] = page
 
