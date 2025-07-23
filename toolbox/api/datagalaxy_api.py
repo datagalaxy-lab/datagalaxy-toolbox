@@ -21,11 +21,14 @@ def handle_timeserie(property: dict) -> dict:
     # Temporary solution: only copy the latest value of the TimeSerie
     for key, value in property.items():
         if isinstance(value, dict):
-            if 'lastEntry' in value and value['lastEntry'] is not None:
-                # Expected format : "Date::Value"
-                last_entry = value['lastEntry']
-                if 'date' in last_entry and 'value' in last_entry:
-                    property[key] = f"{last_entry['date']}::{last_entry['value']}"
+            if 'lastEntry' in value:
+                if value['lastEntry'] is None:
+                    property[key] = ""
+                else:
+                    # Expected format : "Date::Value"
+                    last_entry = value['lastEntry']
+                    if 'date' in last_entry and 'value' in last_entry:
+                        property[key] = f"{last_entry['date']}::{last_entry['value']}"
 
 
 def remove_technology_code(node):
@@ -47,6 +50,7 @@ def build_bulktree(objects):
                 # If found, update the child with additional attributes directly if they don't already exist
                 for key, value in attributes.items():
                     child.setdefault(key, value)
+                    handle_timeserie(child)
                 return child
 
         # If not found, create a new node and add it to children
@@ -60,6 +64,7 @@ def build_bulktree(objects):
         # specific for dataProcessingItems
         if dpis is not None:
             new_child['dataProcessingItems'] = dpis
+        handle_timeserie(new_child)
         children.append(new_child)
         return new_child
 
@@ -69,7 +74,6 @@ def build_bulktree(objects):
         functional_path_segments = obj['functionalPath'][1:].split(PATH_SEPARATOR)
         attributes = obj.get('attributes')
         dpis = obj.get('dataProcessingItems')
-        handle_timeserie(obj)
 
         current_level = root  # Start from the root level
 
