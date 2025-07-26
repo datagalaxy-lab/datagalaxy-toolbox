@@ -6,7 +6,7 @@ class HttpClient:
     """
     Centralized HTTP client that wraps requests and manages SSL verification.
     """
-    
+
     def __init__(self, verify_ssl: bool = True):
         self.verify_ssl = verify_ssl
 

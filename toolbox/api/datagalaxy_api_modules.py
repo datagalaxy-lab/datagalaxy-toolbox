@@ -221,7 +221,8 @@ class DataGalaxyApiModules:
             return 0
         version_id = self.workspace['versionId']
         headers = {'Authorization': f"Bearer {self.token}"}
-        response = self.http_client.delete(f"{self.url}/{self.route}/bulk/{version_id}",
+        response = self.http_client.delete(
+                                   f"{self.url}/{self.route}/bulk/{version_id}",
                                    json=ids,
                                    headers=headers)
         code = response.status_code
@@ -237,7 +238,9 @@ class DataGalaxyApiModules:
         for page in links:
             version_id = self.workspace['versionId']
             headers = {'Authorization': f"Bearer {self.token}"}
-            response = self.http_client.post(f"{self.url}/{self.route}/bulktree/{version_id}", json=page,
+            response = self.http_client.post(
+                                     f"{self.url}/{self.route}/bulktree/{version_id}",
+                                     json=page,
                                      headers=headers)
             code = response.status_code
             body_json = response.json()
