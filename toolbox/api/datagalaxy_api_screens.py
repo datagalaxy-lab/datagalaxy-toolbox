@@ -1,4 +1,3 @@
-import requests as requests
 from typing import Optional
 from .http_client import HttpClient
 

@@ -1,5 +1,4 @@
 import logging
-import requests as requests
 from toolbox.api.datagalaxy_api import build_bulktree, prune_tree, remove_technology_code, create_batches
 from .http_client import HttpClient
 from typing import Optional

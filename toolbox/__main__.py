@@ -54,7 +54,7 @@ def run(args):
     # Create HTTP client with SSL verification setting
     verify_ssl = not result.no_verify_ssl
     http_client = HttpClient(verify_ssl=verify_ssl)
-    
+
     if not verify_ssl:
         # Suppress the warnings from urllib3
         requests.packages.urllib3.disable_warnings(category=InsecureRequestWarning)

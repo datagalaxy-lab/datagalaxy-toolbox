@@ -1,4 +1,3 @@
-import requests as requests
 import logging
 from .http_client import HttpClient
 
