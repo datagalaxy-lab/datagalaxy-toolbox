@@ -1,14 +1,16 @@
 import logging
 
 from toolbox.api.datagalaxy_api_attributes import DataGalaxyApiAttributes, custom_attributes, find_duplicates
+from toolbox.api.http_client import HttpClient
 
 
 def copy_attributes(url_source: str,
                     url_target: str,
                     token_source: str,
-                    token_target: str) -> int:
-    attributes_api_source = DataGalaxyApiAttributes(url=url_source, token=token_source)
-    attributes_api_target = DataGalaxyApiAttributes(url=url_target, token=token_target)
+                    token_target: str,
+                    http_client: HttpClient) -> int:
+    attributes_api_source = DataGalaxyApiAttributes(url=url_source, token=token_source, http_client=http_client)
+    attributes_api_target = DataGalaxyApiAttributes(url=url_target, token=token_target, http_client=http_client)
     custom_source_attributes = custom_attributes(attributes_api_source)
     logging.debug(f"copy_attributes - custom_source_attributes: {custom_source_attributes}")
     logging.info(

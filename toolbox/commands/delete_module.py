@@ -2,6 +2,7 @@ from typing import Optional
 
 from toolbox.api.datagalaxy_api_modules import DataGalaxyApiModules
 from toolbox.api.datagalaxy_api import find_root_objects
+from toolbox.api.http_client import HttpClient
 from toolbox.commands.utils import config_workspace
 
 
@@ -9,7 +10,8 @@ def delete_module(module: str,
                   url: str,
                   token: str,
                   workspace_name: str,
-                  version_name: Optional[str]) -> str:
+                  version_name: Optional[str],
+                  http_client: HttpClient) -> str:
 
     # Workspace
     workspace = config_workspace(
@@ -17,7 +19,8 @@ def delete_module(module: str,
         url=url,
         token=token,
         workspace_name=workspace_name,
-        version_name=version_name
+        version_name=version_name,
+        http_client=http_client
     )
     if not workspace:
         return 1
@@ -27,7 +30,8 @@ def delete_module(module: str,
         url=url,
         token=token,
         workspace=workspace,
-        module=module
+        module=module,
+        http_client=http_client
     )
 
     # Fetch objects from source workspace

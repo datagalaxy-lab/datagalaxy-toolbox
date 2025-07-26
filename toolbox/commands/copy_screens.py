@@ -3,6 +3,7 @@ from typing import Optional
 
 from toolbox.api.datagalaxy_api_screens import DataGalaxyApiScreen
 from toolbox.api.datagalaxy_api_workspaces import DataGalaxyApiWorkspace
+from toolbox.api.http_client import HttpClient
 
 
 def copy_screens(url_source: str,
@@ -10,7 +11,8 @@ def copy_screens(url_source: str,
                  token_source: str,
                  token_target: Optional[str],
                  workspace_source_name: Optional[str],
-                 workspace_target_name: Optional[str]) -> int:
+                 workspace_target_name: Optional[str],
+                 http_client: HttpClient) -> int:
     if token_target is None:
         token_target = token_source
 
@@ -24,7 +26,8 @@ def copy_screens(url_source: str,
         logging.info("copy_screens - Source workspace name given : copying the workspace's screens")
         workspaces_api_on_source_env = DataGalaxyApiWorkspace(
             url=url_source,
-            token=token_source
+            token=token_source,
+            http_client=http_client
         )
         source_workspace = workspaces_api_on_source_env.get_workspace(workspace_source_name)
         if source_workspace is None:
@@ -37,14 +40,15 @@ def copy_screens(url_source: str,
         logging.info("copy_screens - Target workspace name given : writing on workspace's screens")
         workspaces_api_on_target_env = DataGalaxyApiWorkspace(
             url=url_target,
-            token=token_target
+            token=token_target,
+            http_client=http_client
         )
         target_workspace = workspaces_api_on_target_env.get_workspace(workspace_target_name)
         if target_workspace is None:
             raise Exception(f'workspace {workspace_target_name} does not exist')
 
-    source_screens_api = DataGalaxyApiScreen(url=url_source, token=token_source, workspace=source_workspace)
-    target_screens_api = DataGalaxyApiScreen(url=url_target, token=token_target, workspace=target_workspace)
+    source_screens_api = DataGalaxyApiScreen(url=url_source, token=token_source, workspace=source_workspace, http_client=http_client)
+    target_screens_api = DataGalaxyApiScreen(url=url_target, token=token_target, workspace=target_workspace, http_client=http_client)
 
     source_screens = source_screens_api.list_screens()
     target_screens = target_screens_api.list_screens()

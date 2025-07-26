@@ -47,6 +47,8 @@ If you want to use the DataGalaxy Toolbox on MacOS or Unix, you need to build a 
 
 ##### Parameters
 - [optional arguments] `-h`, `--help`- show help message  
+- `-v`, `--verbose` - increase output verbosity
+- `--no-verify-ssl` - disable SSL certificate verification for HTTPS requests (default: enabled)
 - `--url` - The API URL of your DataGalaxy environment
 - `--token` - A DataGalaxy Token, either an Integration Token or a Personal Access Token
 - `--url-source`- The API URL of the source environnement
