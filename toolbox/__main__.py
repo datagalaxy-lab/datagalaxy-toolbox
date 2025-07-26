@@ -3,7 +3,6 @@ import logging
 import requests
 import sys
 
-from urllib3.exceptions import InsecureRequestWarning
 from toolbox.api.http_client import HttpClient
 from toolbox.commands.copy_attributes import copy_attributes_parse, copy_attributes
 from toolbox.commands.copy_technologies import copy_technologies_parse, copy_technologies
@@ -54,10 +53,6 @@ def run(args):
     # Create HTTP client with SSL verification setting
     verify_ssl = not result.no_verify_ssl
     http_client = HttpClient(verify_ssl=verify_ssl)
-
-    if not verify_ssl:
-        # Suppress the warnings from urllib3
-        requests.packages.urllib3.disable_warnings(category=InsecureRequestWarning)
 
     # Config
 

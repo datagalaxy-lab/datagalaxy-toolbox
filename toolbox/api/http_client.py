@@ -1,5 +1,6 @@
 import requests
 from typing import Optional, Dict, Any
+from urllib3.exceptions import InsecureRequestWarning
 
 
 class HttpClient:
@@ -9,6 +10,9 @@ class HttpClient:
 
     def __init__(self, verify_ssl: bool = True):
         self.verify_ssl = verify_ssl
+        if not verify_ssl:
+            # Suppress the warnings from urllib3
+            requests.packages.urllib3.disable_warnings(category=InsecureRequestWarning)
 
     def get(
             self, url: str,
