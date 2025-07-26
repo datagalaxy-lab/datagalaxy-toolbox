@@ -1,6 +1,5 @@
 import argparse
 import logging
-import requests
 import sys
 
 from toolbox.api.http_client import HttpClient
