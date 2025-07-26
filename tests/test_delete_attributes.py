@@ -1,4 +1,5 @@
 from toolbox.api.datagalaxy_api_attributes import AttributeDataType, DataGalaxyApiAttributes
+from toolbox.api.http_client import HttpClient
 from toolbox.commands.delete_attributes import delete_attributes
 
 
@@ -25,7 +26,8 @@ def test_delete_attributes(mocker):
     delete_attributes_mock.return_value = True
 
     # THEN
-    result = delete_attributes(url='url', token='token')
+    http_client = HttpClient(verify_ssl=True)
+    result = delete_attributes(url='url', token='token', http_client=http_client)
 
     # ASSERT / VERIFY
     assert result is True

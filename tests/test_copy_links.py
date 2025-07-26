@@ -1,5 +1,6 @@
 from toolbox.commands.copy_links import copy_links
 from toolbox.api.datagalaxy_api_workspaces import DataGalaxyApiWorkspace
+from toolbox.api.http_client import HttpClient
 
 
 # Mocks
@@ -20,6 +21,7 @@ def test_copy_links_when_workspace_source_does_not_exist(mocker):
     workspace_source_mock.return_value = None
 
     # THEN
+    http_client = HttpClient(verify_ssl=True)
     result = copy_links(
         url_source='url_source',
         token_source='token_source',
@@ -28,7 +30,8 @@ def test_copy_links_when_workspace_source_does_not_exist(mocker):
         workspace_source_name='workspace_source',
         version_source_name=None,
         workspace_target_name='workspace_target',
-        version_target_name=None
+        version_target_name=None,
+        http_client=http_client
     )
 
     # ASSERT / VERIFY
