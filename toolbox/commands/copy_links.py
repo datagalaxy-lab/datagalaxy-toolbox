@@ -2,6 +2,7 @@ import logging
 from typing import Optional
 
 from toolbox.api.datagalaxy_api_modules import DataGalaxyApiModules
+from toolbox.api.http_client import HttpClient
 from toolbox.commands.utils import config_workspace
 
 
@@ -12,7 +13,8 @@ def copy_links(url_source: str,
                workspace_source_name: str,
                version_source_name: Optional[str],
                workspace_target_name: str,
-               version_target_name: Optional[str]) -> int:
+               version_target_name: Optional[str],
+               http_client: HttpClient) -> int:
     if token_target is None:
         token_target = token_source
 
@@ -25,7 +27,8 @@ def copy_links(url_source: str,
         url=url_source,
         token=token_source,
         workspace_name=workspace_source_name,
-        version_name=version_source_name
+        version_name=version_source_name,
+        http_client=http_client
     )
     if not source_workspace:
         return 1
@@ -36,7 +39,8 @@ def copy_links(url_source: str,
         url=url_target,
         token=token_target,
         workspace_name=workspace_target_name,
-        version_name=version_target_name
+        version_name=version_target_name,
+        http_client=http_client
     )
     if not target_workspace:
         return 1
@@ -46,25 +50,29 @@ def copy_links(url_source: str,
         url=url_source,
         token=token_source,
         workspace=source_workspace,
-        module="Glossary"
+        module="Glossary",
+        http_client=http_client
     )
     source_dictionary_api = DataGalaxyApiModules(
         url=url_source,
         token=token_source,
         workspace=source_workspace,
-        module="Dictionary"
+        module="Dictionary",
+        http_client=http_client
     )
     source_dataprocessings_api = DataGalaxyApiModules(
         url=url_source,
         token=token_source,
         workspace=source_workspace,
-        module="DataProcessing"
+        module="DataProcessing",
+        http_client=http_client
     )
     source_usages_api = DataGalaxyApiModules(
         url=url_source,
         token=token_source,
         workspace=source_workspace,
-        module="Uses"
+        module="Uses",
+        http_client=http_client
     )
 
     # Find all links in source workspace
@@ -93,7 +101,8 @@ def copy_links(url_source: str,
         url=url_target,
         token=token_target,
         workspace=target_workspace,
-        module="Links"
+        module="Links",
+        http_client=http_client
     )
 
     # Creating links in target workspace

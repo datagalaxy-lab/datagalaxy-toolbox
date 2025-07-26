@@ -1,15 +1,17 @@
 import requests as requests
 import logging
+from .http_client import HttpClient
 
 
 class DataGalaxyApiWorkspace:
-    def __init__(self, url: str, token: str):
+    def __init__(self, url: str, token: str, http_client: HttpClient):
         self.url = url
         self.token = token
+        self.http_client = http_client
 
     def list_workspaces(self):
         headers = {'Authorization': f"Bearer {self.token}"}
-        response = requests.get(f"{self.url}/workspaces", headers=headers)
+        response = self.http_client.get(f"{self.url}/workspaces", headers=headers)
         code = response.status_code
         body_json = response.json()
         if code == 200:
@@ -36,7 +38,7 @@ class DataGalaxyApiWorkspace:
     def list_versions(self, id_workspace: str) -> dict:
         headers = {'Authorization': f"Bearer {self.token}"}
         params = {'limit': '5000'}
-        response = requests.get(f"{self.url}/workspaces/{id_workspace}/versions", headers=headers, params=params)
+        response = self.http_client.get(f"{self.url}/workspaces/{id_workspace}/versions", headers=headers, params=params)
         code = response.status_code
         body_json = response.json()
         if code == 200:
