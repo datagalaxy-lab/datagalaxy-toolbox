@@ -2,6 +2,7 @@ from typing import Optional
 import logging
 
 from toolbox.api.datagalaxy_api_modules import DataGalaxyApiModules
+from toolbox.api.http_client import HttpClient
 from toolbox.commands.utils import config_workspace
 
 
@@ -14,7 +15,8 @@ def copy_module(module: str,
                 version_source_name: Optional[str],
                 workspace_target_name: str,
                 version_target_name: Optional[str],
-                tag_value: Optional[str]) -> int:
+                tag_value: Optional[str],
+                http_client: HttpClient) -> int:
     # Tokens
     if token_target is None:
         token_target = token_source
@@ -29,7 +31,8 @@ def copy_module(module: str,
         url=url_source,
         token=token_source,
         workspace_name=workspace_source_name,
-        version_name=version_source_name
+        version_name=version_source_name,
+        http_client=http_client
     )
     if not source_workspace:
         return 1
@@ -40,7 +43,8 @@ def copy_module(module: str,
         url=url_target,
         token=token_target,
         workspace_name=workspace_target_name,
-        version_name=version_target_name
+        version_name=version_target_name,
+        http_client=http_client
     )
     if not target_workspace:
         return 1
@@ -50,7 +54,8 @@ def copy_module(module: str,
         url=url_source,
         token=token_source,
         workspace=source_workspace,
-        module=module
+        module=module,
+        http_client=http_client
     )
 
     # Target module
@@ -58,7 +63,8 @@ def copy_module(module: str,
         url=url_target,
         token=token_target,
         workspace=target_workspace,
-        module=module
+        module=module,
+        http_client=http_client
     )
 
     # Fetch objects from source workspace

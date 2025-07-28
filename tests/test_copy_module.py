@@ -1,5 +1,6 @@
 from toolbox.api.datagalaxy_api_modules import DataGalaxyApiModules
 from toolbox.api.datagalaxy_api_workspaces import DataGalaxyApiWorkspace
+from toolbox.api.http_client import HttpClient
 from toolbox.commands.copy_module import copy_module
 
 
@@ -33,6 +34,7 @@ def test_copy_objects_when_no_object_on_target(mocker):
     bulk_upsert_objects_on_target_workspace_mock.return_value = 0
 
     # THEN
+    http_client = HttpClient(verify_ssl=True)
     result = copy_module(
         module="Glossary",
         url_source='url_source',
@@ -43,7 +45,8 @@ def test_copy_objects_when_no_object_on_target(mocker):
         version_source_name=None,
         workspace_target_name='workspace_target',
         version_target_name=None,
-        tag_value=None
+        tag_value=None,
+        http_client=http_client
     )
 
     # ASSERT / VERIFY

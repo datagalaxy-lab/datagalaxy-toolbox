@@ -1,11 +1,11 @@
 import logging
-import requests as requests
 from toolbox.api.datagalaxy_api import build_bulktree, prune_tree, remove_technology_code, create_batches
+from .http_client import HttpClient
 from typing import Optional
 
 
 class DataGalaxyApiModules:
-    def __init__(self, url: str, token: str, workspace: dict, module: str):
+    def __init__(self, url: str, token: str, workspace: dict, module: str, http_client: HttpClient):
         if module not in ["Glossary", "Dictionary", "DataProcessing", "Uses", "Links"]:
             raise Exception('The specified module does not exist.')
         self.module = module
@@ -23,6 +23,7 @@ class DataGalaxyApiModules:
         self.url = url
         self.token = token
         self.workspace = workspace
+        self.http_client = http_client
 
     def list_objects(self, workspace_name: str, include_links=False) -> list:
         version_id = self.workspace['versionId']
@@ -32,7 +33,7 @@ class DataGalaxyApiModules:
         else:
             params['includeAttributes'] = 'true'
         headers = {'Authorization': f"Bearer {self.token}"}
-        response = requests.get(f"{self.url}/{self.route}", params=params, headers=headers)
+        response = self.http_client.get(f"{self.url}/{self.route}", params=params, headers=headers)
         code = response.status_code
         body_json = response.json()
         if code != 200:
@@ -45,7 +46,7 @@ class DataGalaxyApiModules:
         while next_page is not None:
             logging.info('Fetching another page from the API...')
             headers = {'Authorization': f"Bearer {self.token}"}
-            response = requests.get(next_page, headers=headers)
+            response = self.http_client.get(next_page, headers=headers)
             body_json = response.json()
             logging.info(
                 f'list_objects - {len(body_json["results"])} objects found on '
@@ -62,7 +63,7 @@ class DataGalaxyApiModules:
         version_id = self.workspace['versionId']
         params = {'versionId': version_id, 'parentId': parent_id, 'includeAttributes': 'true'}
         headers = {'Authorization': f"Bearer {self.token}"}
-        response = requests.get(f"{self.url}/dataProcessingItem", params=params, headers=headers)
+        response = self.http_client.get(f"{self.url}/dataProcessingItem", params=params, headers=headers)
         code = response.status_code
         body_json = response.json()
         if code != 200:
@@ -72,7 +73,7 @@ class DataGalaxyApiModules:
         next_page = body_json["next_page"]
         while next_page is not None:
             headers = {'Authorization': f"Bearer {self.token}"}
-            response = requests.get(next_page, headers=headers)
+            response = self.http_client.get(next_page, headers=headers)
             body_json = response.json()
             next_page = body_json["next_page"]
             result = result + body_json['results']
@@ -89,7 +90,7 @@ class DataGalaxyApiModules:
         else:
             params = {'versionId': version_id, 'limit': '5000', 'includeAttributes': 'true', 'parentId': parent_id}
         headers = {'Authorization': f"Bearer {self.token}"}
-        response = requests.get(f"{self.url}/{object_type}", params=params, headers=headers)
+        response = self.http_client.get(f"{self.url}/{object_type}", params=params, headers=headers)
         code = response.status_code
         body_json = response.json()
         if code != 200:
@@ -102,7 +103,7 @@ class DataGalaxyApiModules:
         while next_page is not None:
             logging.info('Fetching another page from the API...')
             headers = {'Authorization': f"Bearer {self.token}"}
-            response = requests.get(next_page, headers=headers)
+            response = self.http_client.get(next_page, headers=headers)
             body_json = response.json()
             logging.info(
                 f'list_children_objects - {len(body_json["results"])} objects found on '
@@ -118,7 +119,7 @@ class DataGalaxyApiModules:
 
         version_id = self.workspace['versionId']
         headers = {'Authorization': f"Bearer {self.token}"}
-        response = requests.get(f"{self.url}/{self.route}/{version_id}/{source_id}/{mode}Keys", headers=headers)
+        response = self.http_client.get(f"{self.url}/{self.route}/{version_id}/{source_id}/{mode}Keys", headers=headers)
         code = response.status_code
         body_json = response.json()
         if code != 200:
@@ -135,7 +136,7 @@ class DataGalaxyApiModules:
 
         version_id = self.workspace['versionId']
         headers = {'Authorization': f"Bearer {self.token}"}
-        response = requests.put(f"{self.url}/{self.route}/{version_id}/{source_id}/{mode}Keys", json=keys, headers=headers)
+        response = self.http_client.put(f"{self.url}/{self.route}/{version_id}/{source_id}/{mode}Keys", json=keys, headers=headers)
         code = response.status_code
         body_json = response.json()
         if 200 <= code < 300:
@@ -149,7 +150,7 @@ class DataGalaxyApiModules:
     def create_source(self, workspace_name: str, source: dict) -> str:
         version_id = self.workspace['versionId']
         headers = {'Authorization': f"Bearer {self.token}"}
-        response = requests.post(f"{self.url}/{self.route}/{version_id}", json=source, headers=headers)
+        response = self.http_client.post(f"{self.url}/{self.route}/{version_id}", json=source, headers=headers)
         code = response.status_code
         body_json = response.json()
         if code != 201:
@@ -178,7 +179,7 @@ class DataGalaxyApiModules:
 
             version_id = self.workspace['versionId']
             headers = {'Authorization': f"Bearer {self.token}"}
-            response = requests.post(f"{self.url}/{self.route}/bulktree/{version_id}", json=bulktree, headers=headers)
+            response = self.http_client.post(f"{self.url}/{self.route}/bulktree/{version_id}", json=bulktree, headers=headers)
             code = response.status_code
             body_json = response.json()
             if 200 <= code < 300:
@@ -204,7 +205,7 @@ class DataGalaxyApiModules:
 
             version_id = self.workspace['versionId']
             headers = {'Authorization': f"Bearer {self.token}"}
-            response = requests.post(f"{self.url}/{self.route}/bulktree/{version_id}", json=bulktree, headers=headers)
+            response = self.http_client.post(f"{self.url}/{self.route}/bulktree/{version_id}", json=bulktree, headers=headers)
             code = response.status_code
             body_json = response.json()
             if 200 <= code < 300:
@@ -220,7 +221,8 @@ class DataGalaxyApiModules:
             return 0
         version_id = self.workspace['versionId']
         headers = {'Authorization': f"Bearer {self.token}"}
-        response = requests.delete(f"{self.url}/{self.route}/bulk/{version_id}",
+        response = self.http_client.delete(
+                                   f"{self.url}/{self.route}/bulk/{version_id}",
                                    json=ids,
                                    headers=headers)
         code = response.status_code
@@ -236,7 +238,9 @@ class DataGalaxyApiModules:
         for page in links:
             version_id = self.workspace['versionId']
             headers = {'Authorization': f"Bearer {self.token}"}
-            response = requests.post(f"{self.url}/{self.route}/bulktree/{version_id}", json=page,
+            response = self.http_client.post(
+                                     f"{self.url}/{self.route}/bulktree/{version_id}",
+                                     json=page,
                                      headers=headers)
             code = response.status_code
             body_json = response.json()

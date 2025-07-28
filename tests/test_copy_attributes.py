@@ -1,4 +1,5 @@
 from toolbox.api.datagalaxy_api_attributes import AttributeDataType, DataGalaxyApiAttributes
+from toolbox.api.http_client import HttpClient
 from toolbox.commands.copy_attributes import copy_attributes
 from unittest.mock import ANY
 
@@ -68,11 +69,13 @@ def test_copy_attributes_when_only_one_source_attr_and_duplicates_on_target(mock
     attributes_bulk_create_mock.return_value = None
 
     # ASSERT / VERIFY
+    http_client = HttpClient(verify_ssl=True)
     result = copy_attributes(
             url_source='url_source',
             url_target='url_target',
             token_source='token_source',
-            token_target='token_target'
+            token_target='token_target',
+            http_client=http_client
         )
     assert attributes_list_mock.call_count == 16
     assert attributes_bulk_create_mock.call_count == 1
@@ -92,11 +95,13 @@ def test_copy_attributes_when_no_source_attr(mocker):
     attributes_bulk_create_mock.return_value = None
 
     # THEN
+    http_client = HttpClient(verify_ssl=True)
     result = copy_attributes(
         url_source='url_source',
         url_target='url_target',
         token_source='token_source',
-        token_target='token_target'
+        token_target='token_target',
+        http_client=http_client
     )
     # ASSERT / VERIFY
     assert attributes_list_mock.call_count == 8
@@ -117,11 +122,13 @@ def test_copy_attributes_when_many_source_attrs(mocker):
     attributes_bulk_create_mock.return_value = 3
 
     # THEN
+    http_client = HttpClient(verify_ssl=True)
     result = copy_attributes(
         url_source='url_source',
         url_target='url_target',
         token_source='token_source',
-        token_target='token_target'
+        token_target='token_target',
+        http_client=http_client
     )
     # ASSERT / VERIFY
     assert attributes_list_mock.call_count == 16
@@ -166,11 +173,13 @@ def test_copy_attributes_when_only_one_source_attr_and_empty_target(mocker):
     attributes_bulk_create_mock.return_value = 1
 
     # THEN
+    http_client = HttpClient(verify_ssl=True)
     result = copy_attributes(
         url_source='url_source',
         url_target='url_target',
         token_source='token_source',
-        token_target='token_target'
+        token_target='token_target',
+        http_client=http_client
     )
 
     # ASSERT / VERIFY

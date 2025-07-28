@@ -2,6 +2,7 @@ import argparse
 import logging
 import sys
 
+from toolbox.api.http_client import HttpClient
 from toolbox.commands.copy_attributes import copy_attributes_parse, copy_attributes
 from toolbox.commands.copy_technologies import copy_technologies_parse, copy_technologies
 from toolbox.commands.copy_screens import copy_screens_parse, copy_screens
@@ -21,6 +22,8 @@ def run(args):
     # create the top-level parser
     parser = argparse.ArgumentParser(description='Toolbox')
     parser.add_argument("-v", "--verbose", help="increase output verbosity",
+                        action="store_true")
+    parser.add_argument("--no-verify-ssl", help="disable SSL certificate verification for HTTPS requests",
                         action="store_true")
     subparsers = parser.add_subparsers(help='sub-command help', dest='subparsers_name')
     # Clientspace
@@ -46,6 +49,10 @@ def run(args):
         logging.getLogger().setLevel(logging.DEBUG)
         logging.info("Verbose output")
 
+    # Create HTTP client with SSL verification setting
+    verify_ssl = not result.no_verify_ssl
+    http_client = HttpClient(verify_ssl=verify_ssl)
+
     # Config
 
     if result.subparsers_name == 'copy-attributes':
@@ -54,7 +61,8 @@ def run(args):
             result.url_source,
             result.url_target,
             result.token_source,
-            result.token_target
+            result.token_target,
+            http_client
         )
         logging.info("<<< copy_attributes")
         return 0
@@ -65,7 +73,8 @@ def run(args):
             result.url_source,
             result.url_target,
             result.token_source,
-            result.token_target
+            result.token_target,
+            http_client
         )
         logging.info("<<< copy_technologies")
         return 0
@@ -78,7 +87,8 @@ def run(args):
             result.token_source,
             result.token_target,
             result.workspace_source,
-            result.workspace_target
+            result.workspace_target,
+            http_client
         )
         logging.info("<<< copy_screens")
         return 0
@@ -87,7 +97,8 @@ def run(args):
         logging.info(">>> delete_attributes")
         delete_attributes(
             result.url,
-            result.token
+            result.token,
+            http_client
         )
         logging.info("<<< delete_attributes")
         return 0
@@ -105,7 +116,8 @@ def run(args):
             result.version_source,
             result.workspace_target,
             result.version_target,
-            result.tag_value
+            result.tag_value,
+            http_client
         )
         logging.info("<<< copy_glossary")
         return 0
@@ -122,7 +134,8 @@ def run(args):
             result.version_source,
             result.workspace_target,
             result.version_target,
-            result.tag_value
+            result.tag_value,
+            http_client
         )
         logging.info("<<< copy_dictionary")
         return 0
@@ -139,7 +152,8 @@ def run(args):
             result.version_source,
             result.workspace_target,
             result.version_target,
-            result.tag_value
+            result.tag_value,
+            http_client
         )
         logging.info("<<< copy_dataprocessings")
         return 0
@@ -156,7 +170,8 @@ def run(args):
             result.version_source,
             result.workspace_target,
             result.version_target,
-            result.tag_value
+            result.tag_value,
+            http_client
         )
         logging.info("<<< copy_usages")
         return 0
@@ -171,7 +186,8 @@ def run(args):
             result.workspace_source,
             result.version_source,
             result.workspace_target,
-            result.version_target
+            result.version_target,
+            http_client
         )
         logging.info("<<< copy_links")
         return 0
@@ -184,7 +200,8 @@ def run(args):
             result.url,
             result.token,
             result.workspace,
-            result.version
+            result.version,
+            http_client
         )
         logging.info("<<< delete_glossary")
         return 0
@@ -196,7 +213,8 @@ def run(args):
             result.url,
             result.token,
             result.workspace,
-            result.version
+            result.version,
+            http_client
         )
         logging.info("<<< delete_dictionary")
         return 0
@@ -208,7 +226,8 @@ def run(args):
             result.url,
             result.token,
             result.workspace,
-            result.version
+            result.version,
+            http_client
         )
         logging.info("<<< delete_dataprocessings")
         return 0
@@ -220,7 +239,8 @@ def run(args):
             result.url,
             result.token,
             result.workspace,
-            result.version
+            result.version,
+            http_client
         )
         logging.info("<<< delete_usages")
         return 0

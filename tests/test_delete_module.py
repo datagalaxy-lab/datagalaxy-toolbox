@@ -1,5 +1,6 @@
 from toolbox.api.datagalaxy_api_workspaces import DataGalaxyApiWorkspace
 from toolbox.api.datagalaxy_api_modules import DataGalaxyApiModules
+from toolbox.api.http_client import HttpClient
 from toolbox.commands.delete_module import delete_module
 
 
@@ -27,7 +28,8 @@ def test_delete_module(mocker):
     delete_objects_mock.return_value = True
 
     # THEN
-    result = delete_module(module="Glossary", url='url', token='token', workspace_name="workspace", version_name=None)
+    http_client = HttpClient(verify_ssl=True)
+    result = delete_module(module="Glossary", url='url', token='token', workspace_name="workspace", version_name=None, http_client=http_client)
 
     # ASSERT / VERIFY
     assert result == 0

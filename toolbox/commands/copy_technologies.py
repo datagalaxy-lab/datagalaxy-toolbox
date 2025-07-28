@@ -1,15 +1,17 @@
 import logging
 
 from toolbox.api.datagalaxy_api_technologies import DataGalaxyApiTechnology
+from toolbox.api.http_client import HttpClient
 
 
 def copy_technologies(url_source: str,
                       url_target: str,
                       token_source: str,
-                      token_target: str) -> int:
+                      token_target: str,
+                      http_client: HttpClient) -> int:
 
-    technologies_api_source = DataGalaxyApiTechnology(url=url_source, token=token_source)
-    technologies_api_target = DataGalaxyApiTechnology(url=url_target, token=token_target)
+    technologies_api_source = DataGalaxyApiTechnology(url=url_source, token=token_source, http_client=http_client)
+    technologies_api_target = DataGalaxyApiTechnology(url=url_target, token=token_target, http_client=http_client)
 
     source_technologies = technologies_api_source.list_technologies()
     target_technologies = technologies_api_target.list_technologies()

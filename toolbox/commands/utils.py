@@ -1,12 +1,14 @@
 import logging
 from typing import Optional
 from toolbox.api.datagalaxy_api_workspaces import DataGalaxyApiWorkspace
+from toolbox.api.http_client import HttpClient
 
 
-def config_workspace(mode: str, url: str, token: str, workspace_name: str, version_name: Optional[str]):
+def config_workspace(mode: str, url: str, token: str, workspace_name: str, version_name: Optional[str], http_client: HttpClient):
     workspaces_api = DataGalaxyApiWorkspace(
         url=url,
-        token=token)
+        token=token,
+        http_client=http_client)
     workspace = workspaces_api.get_workspace(workspace_name)
     if not workspace:
         return None

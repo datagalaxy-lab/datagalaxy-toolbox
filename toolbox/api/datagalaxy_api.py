@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 
 import logging
+from .http_client import HttpClient
 
 logging.basicConfig(level=logging.INFO,
                     format='{asctime} {levelname} {message}',
@@ -12,6 +13,7 @@ logging.basicConfig(level=logging.INFO,
 class DataGalaxyApi:
     url: str
     token: str
+    http_client: HttpClient
 
 
 PATH_SEPARATOR = "\\"
