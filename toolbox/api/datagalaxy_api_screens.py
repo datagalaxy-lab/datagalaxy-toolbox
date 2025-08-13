@@ -23,16 +23,15 @@ class DataGalaxyApiScreen:
 
         return body_json
 
-    def update_screen(self, screen) -> object:
+    def update_screen(self, data_type: str, entity_type: str, categories: list) -> dict:
         headers = {'Authorization': f"Bearer {self.token}"}
-        dataType = screen['dataType'].lower()
-        type = screen['type'].lower()
-        categories = screen['categories']
+        data_type = data_type.lower()
+        entity_type = entity_type.lower()
         if self.workspace is None:
-            response = self.http_client.put(f"{self.url}/attributes/screens/{dataType}/{type}", json=categories, headers=headers)
+            response = self.http_client.put(f"{self.url}/attributes/screens/{data_type}/{entity_type}", json=categories, headers=headers)
         else:
             params = {'versionId': self.workspace['versionId']}
-            response = self.http_client.put(f"{self.url}/attributes/screens/{dataType}/{type}", json=categories, headers=headers, params=params)
+            response = self.http_client.put(f"{self.url}/attributes/screens/{data_type}/{entity_type}", json=categories, headers=headers, params=params)
         code = response.status_code
         body_json = response.json()
         if code != 200:
