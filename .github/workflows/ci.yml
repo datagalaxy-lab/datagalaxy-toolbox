@@ -18,9 +18,10 @@ jobs:
         python-version: ["3.9"]
     runs-on: ubuntu-latest
     steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
     - name: Initialize CodeQL
       uses: github/codeql-action/init@v3
-    - uses: actions/checkout@v4
     - name: Setup Python ${{ matrix.python-version }}
       uses: actions/setup-python@v5
       with:
