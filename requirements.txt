@@ -6,4 +6,4 @@ wheel==0.45.1
 requests==2.32.5
 pytest-mock==3.15.1
 PyJWT==2.10.1
-pyinstaller==6.17.0
+pyinstaller==6.18.0
