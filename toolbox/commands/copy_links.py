@@ -107,7 +107,7 @@ def copy_links(url_source: str,
 
     # Creating links in target workspace, one call per batch
     for batch in link_batches:
-        target_links_api.bulk_upsert_tree(workspace_name=workspace_target_name, bulktree=batch)
+        target_links_api.bulk_upsert_tree(workspace_name=workspace_target_name, bulktree=batch, tag_value=None)
     return 0
 
 

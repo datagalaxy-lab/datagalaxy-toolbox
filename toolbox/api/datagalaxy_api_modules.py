@@ -161,7 +161,7 @@ class DataGalaxyApiModules:
 
         return source_id
 
-    def bulk_upsert_tree(self, workspace_name: str, bulktree: dict, tag_value: Optional[str]) -> int:
+    def bulk_upsert_tree(self, workspace_name: str, bulktree: dict, tag_value: Optional[str] = None) -> int:
         if tag_value is not None:
             bulktree = prune_tree(bulktree, tag_value)
 

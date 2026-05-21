@@ -89,3 +89,28 @@ def test_run_with_missing_copy_module_args(mocker):
     assert exit_mock.call_count == 1
     # should output the CLI usage to stderr
     assert re.compile('^usage:.*copy-glossary.*').match(mock_stderr.getvalue())
+
+
+def test_run_with_valid_export_module_args_and_bulktree(mocker):
+    export_module_mock = mocker.patch('toolbox.__main__.export_module')
+    exit_mock = mocker.patch('sys.exit')
+    code = run([
+        'export-glossary',
+        '--url', 'https://source',
+        '--token', 'token_source',
+        '--workspace', 'workspace_source_name',
+        '--version', 'version_source_name',
+        '--bulktree',
+    ])
+
+    assert code == 0
+    assert exit_mock.call_count == 0
+    assert export_module_mock.call_count == 1
+    assert export_module_mock.call_args.args[0:5] == (
+        'Glossary',
+        'https://source',
+        'token_source',
+        'workspace_source_name',
+        'version_source_name',
+    )
+    assert export_module_mock.call_args.args[6] is True
