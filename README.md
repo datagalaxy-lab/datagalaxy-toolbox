@@ -22,6 +22,11 @@ Note that the workspaces can be on different clientspaces.
 - **Copy dataprocessings** objects from a workspace to another.
 - **Copy usages** objects from a workspace to another.
 - **Copy links** from a workspace to another.
+- **Export glossary** objects from a workspace to JSON files.
+- **Export dictionary** objects from a workspace to JSON files.
+- **Export dataprocessings** objects from a workspace to JSON files.
+- **Export usages** objects from a workspace to JSON files.
+- **Export links** from a workspace to JSON files.
 - **Delete glossary** objects of a workspace.
 - **Delete dictionary** objects of a workspace.
 - **Delete dataprocessings** objects of a workspace.
@@ -60,6 +65,7 @@ If you want to use the DataGalaxy Toolbox on MacOS or Unix, you need to build a 
 - `--version-source` - The name of the version of the source workspace
 - `--version-target` - The name of the version of the target workspace
 - `--tag-value` - Filter objects on a specific tag
+- `--bulktree` - Export module objects as a bulktree
 
 
 
@@ -147,6 +153,50 @@ datagalaxy-toolbox.exe copy-usages [-h] --url-source URL_SOURCE --token-source T
 
  `--version-source` and `--version-target` are only for versioned workspaces.
 
+
+#### export-glossary
+
+```
+datagalaxy-toolbox.exe export-glossary [-h] --url URL --token TOKEN --workspace WORKSPACE [--version VERSION] [--tag-value TAG_NAME] [--bulktree]
+```
+ `--version` is only for a versioned workspace.
+
+ `--bulktree` option will export objects in bulktree mode, ready to be imported (if you have more than 5000 objects, you will get multiple bulktrees to handle volume). 
+
+#### export-dictionary
+
+```
+datagalaxy-toolbox.exe export-dictionary [-h] --url URL --token TOKEN --workspace WORKSPACE [--version VERSION] [--tag-value TAG_NAME] [--bulktree]
+```
+ `--version` is only for a versioned workspace.
+
+ `--bulktree` option will export objects in bulktree mode, ready to be imported (if you have more than 5000 objects, you will get multiple bulktrees to handle volume). 
+
+#### export-dataprocessings
+
+```
+datagalaxy-toolbox.exe export-dataprocessings [-h] --url URL --token TOKEN --workspace WORKSPACE [--version VERSION] [--tag-value TAG_NAME] [--bulktree]
+```
+ `--version` is only for a versioned workspace.
+
+ `--bulktree` option will export objects in bulktree mode, ready to be imported (if you have more than 5000 objects, you will get multiple bulktrees to handle volume). 
+
+#### export-usages
+
+```
+datagalaxy-toolbox.exe export-usages [-h] --url URL --token TOKEN --workspace WORKSPACE [--version VERSION] [--tag-value TAG_NAME] [--bulktree]
+```
+ `--version` is only for a versioned workspace.
+
+ `--bulktree` option will export objects in bulktree mode, ready to be imported (if you have more than 5000 objects, you will get multiple bulktrees to handle volume). 
+
+
+#### export-links
+
+```
+datagalaxy-toolbox.exe export-links [-h] --url URL --token TOKEN --workspace WORKSPACE [--version VERSION]
+```
+ `--version` is only for a versioned workspace.
 
 #### copy-links
 

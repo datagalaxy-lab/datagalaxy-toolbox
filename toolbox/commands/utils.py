@@ -1,5 +1,8 @@
 import logging
+import json
+
 from typing import Optional
+from itertools import chain
 from toolbox.api.datagalaxy_api_workspaces import DataGalaxyApiWorkspace
 from toolbox.api.http_client import HttpClient
 
@@ -82,3 +85,17 @@ def parse_links(obj: dict) -> list:
                     }
             links.append(link)
     return links
+
+
+def flatten_pages(pages):
+    return list(chain.from_iterable(pages))
+
+
+def write_file(filename, export_dir, objects):
+    if objects == [] or objects == [[]]:
+        return 1
+    logging.info(f"Writing file {filename}")
+    filepath = export_dir / filename
+    with open(filepath, "w", encoding="utf-8") as f:
+        json.dump(objects, f, ensure_ascii=False, indent=4)
+    return 0

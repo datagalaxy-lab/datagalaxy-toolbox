@@ -9,6 +9,8 @@ from toolbox.commands.copy_screens import copy_screens_parse, copy_screens
 from toolbox.commands.delete_attributes import delete_attributes_parse, delete_attributes
 from toolbox.commands.copy_module import copy_module, copy_glossary_parse, copy_dictionary_parse, copy_dataprocessings_parse, copy_usages_parse
 from toolbox.commands.copy_links import copy_links, copy_links_parse
+from toolbox.commands.export_module import export_module, export_glossary_parse, export_dictionary_parse, export_dataprocessings_parse, export_usages_parse
+from toolbox.commands.export_links import export_links, export_links_parse
 from toolbox.commands.delete_module import delete_module, delete_glossary_parse, delete_dictionary_parse, delete_dataprocessings_parse, delete_usages_parse
 
 
@@ -37,6 +39,12 @@ def run(args):
     copy_dataprocessings_parse(subparsers)
     copy_usages_parse(subparsers)
     copy_links_parse(subparsers)
+    # Export modules
+    export_glossary_parse(subparsers)
+    export_dictionary_parse(subparsers)
+    export_dataprocessings_parse(subparsers)
+    export_usages_parse(subparsers)
+    export_links_parse(subparsers)
     # Delete modules
     delete_glossary_parse(subparsers)
     delete_dictionary_parse(subparsers)
@@ -190,6 +198,75 @@ def run(args):
             http_client
         )
         logging.info("<<< copy_links")
+        return 0
+
+    # Export modules
+    if result.subparsers_name == 'export-glossary':
+        logging.info(">>> export_glossary")
+        export_module(
+            "Glossary",
+            result.url,
+            result.token,
+            result.workspace,
+            result.version,
+            http_client,
+            result.bulktree
+        )
+        logging.info("<<< export_glossary")
+        return 0
+
+    if result.subparsers_name == 'export-dictionary':
+        logging.info(">>> export_dictionary")
+        export_module(
+            "Dictionary",
+            result.url,
+            result.token,
+            result.workspace,
+            result.version,
+            http_client,
+            result.bulktree
+        )
+        logging.info("<<< export_dictionary")
+        return 0
+
+    if result.subparsers_name == 'export-dataprocessings':
+        logging.info(">>> export_dataprocessings")
+        export_module(
+            "DataProcessing",
+            result.url,
+            result.token,
+            result.workspace,
+            result.version,
+            http_client,
+            result.bulktree
+        )
+        logging.info("<<< export_dataprocessings")
+        return 0
+
+    if result.subparsers_name == 'export-usages':
+        logging.info(">>> export_usages")
+        export_module(
+            "Uses",
+            result.url,
+            result.token,
+            result.workspace,
+            result.version,
+            http_client,
+            result.bulktree
+        )
+        logging.info("<<< export_usages")
+        return 0
+
+    if result.subparsers_name == 'export-links':
+        logging.info(">>> export_links")
+        export_links(
+            result.url,
+            result.token,
+            result.workspace,
+            result.version,
+            http_client
+        )
+        logging.info("<<< export_links")
         return 0
 
     # Delete modules
