@@ -2,6 +2,7 @@ from typing import Optional
 import logging
 
 from toolbox.api.datagalaxy_api_modules import DataGalaxyApiModules
+from toolbox.api.datagalaxy_api import build_bulktree, remove_technology_code, create_batches
 from toolbox.api.http_client import HttpClient
 from toolbox.commands.utils import config_workspace
 
@@ -158,13 +159,20 @@ def copy_module(module: str,
                     source=source
                 )
 
-                # bulk upsert source tree
-                target_module_api.bulk_upsert_source_tree(
-                    workspace_name=workspace_target_name,
-                    source=source,
-                    objects=containers + structures + fields,
-                    tag_value=tag_value
-                )
+                # Create batches
+                batches = create_batches(containers + structures + fields)
+                # One bulktree call per batch
+                for batch in batches:
+                    bulktree = build_bulktree([source] + batch)
+                    if len(bulktree) > 1:
+                        raise Exception(f"Problem while creating the bulktree for source {source['name']}")
+                    bulktree = bulktree[0]
+                    # bulk upsert source tree
+                    target_module_api.bulk_upsert_tree(
+                        workspace_name=workspace_target_name,
+                        bulktree=bulktree,
+                        tag_value=tag_value
+                    )
 
                 # create PKs and FKs if they exist
                 if len(pks) > 0:
@@ -184,12 +192,22 @@ def copy_module(module: str,
         if module == "DataProcessing":
             handle_dpis(source_objects, source_module_api, workspace_source_name)
 
-        # Create objects on target workspace
-        target_module_api.bulk_upsert_tree(
-            workspace_name=workspace_target_name,
-            objects=source_objects,
-            tag_value=tag_value
-        )
+        # Build bulktree for each page
+        for page in source_objects:
+            bulktree = build_bulktree(page)
+            # If a parent usage has a technology, it is necessary to delete the "technologyCode" property in every children
+            # Otherwise the API returns an error. Only the parent can hold the "technologyCode" property
+            for tree in bulktree:
+                if 'children' in tree:
+                    for children in tree['children']:
+                        remove_technology_code(children)
+
+            # Send bulktree on target workspace
+            target_module_api.bulk_upsert_tree(
+                workspace_name=workspace_target_name,
+                bulktree=bulktree,
+                tag_value=tag_value
+            )
 
     return 0
 
