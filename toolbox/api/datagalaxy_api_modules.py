@@ -1,5 +1,5 @@
 import logging
-from toolbox.api.datagalaxy_api import build_bulktree, prune_tree, remove_technology_code, create_batches
+from toolbox.api.datagalaxy_api import prune_tree
 from .http_client import HttpClient
 from typing import Optional
 
@@ -161,57 +161,19 @@ class DataGalaxyApiModules:
 
         return source_id
 
-    def bulk_upsert_tree(self, workspace_name: str, objects: list, tag_value: Optional[str]) -> int:
-        # Objects can be in pages, so one POST request per page
-        for page in objects:
-            # Existing entities are updated and non-existing ones are created.
-            bulktree = build_bulktree(page)
+    def bulk_upsert_tree(self, workspace_name: str, bulktree: dict, tag_value: Optional[str]) -> int:
+        if tag_value is not None:
+            bulktree = prune_tree(bulktree, tag_value)
 
-            if tag_value is not None:
-                bulktree = prune_tree(bulktree, tag_value)
-
-            # If a parent usage has a technology, it is necessary to delete the "technologyCode" property in every children
-            # Otherwise the API returns an error. Only the parent can hold the "technologyCode" property
-            for tree in bulktree:
-                if 'children' in tree:
-                    for children in tree['children']:
-                        remove_technology_code(children)
-
-            version_id = self.workspace['versionId']
-            headers = {'Authorization': f"Bearer {self.token}"}
-            response = self.http_client.post(f"{self.url}/{self.route}/bulktree/{version_id}", json=bulktree, headers=headers)
-            code = response.status_code
-            body_json = response.json()
-            if 200 <= code < 300:
-                logging.info(f'bulk_upsert_tree - {body_json}')
-            if 400 <= code < 500:
-                raise Exception(body_json['error'])
-
-        return 200
-
-    # This is a specific request for Dictionary
-    def bulk_upsert_source_tree(self, workspace_name: str, source: dict, objects: list, tag_value: Optional[str]) -> int:
-        batches = create_batches(objects)
-
-        # One bulktree call per batch
-        for batch in batches:
-            bulktree = build_bulktree([source] + batch)
-            if len(bulktree) > 1:
-                raise Exception(f"Problem while creating the bulktree for source {source['name']}")
-            bulktree = bulktree[0]
-
-            if tag_value is not None:
-                bulktree = prune_tree(bulktree, tag_value)
-
-            version_id = self.workspace['versionId']
-            headers = {'Authorization': f"Bearer {self.token}"}
-            response = self.http_client.post(f"{self.url}/{self.route}/bulktree/{version_id}", json=bulktree, headers=headers)
-            code = response.status_code
-            body_json = response.json()
-            if 200 <= code < 300:
-                logging.info(f'bulk_upsert_tree - {body_json}')
-            if 400 <= code < 500:
-                raise Exception(body_json['error'])
+        version_id = self.workspace['versionId']
+        headers = {'Authorization': f"Bearer {self.token}"}
+        response = self.http_client.post(f"{self.url}/{self.route}/bulktree/{version_id}", json=bulktree, headers=headers)
+        code = response.status_code
+        body_json = response.json()
+        if 200 <= code < 300:
+            logging.info(f'bulk_upsert_tree - {body_json}')
+        if 400 <= code < 500:
+            raise Exception(body_json['error'])
 
         return 200
 
@@ -232,19 +194,3 @@ class DataGalaxyApiModules:
         logging.info(
             f'delete_objects - {body_json["totalDeleted"]} objects were deleted on workspace "{workspace_name}" in module {self.module}')
         return 0
-
-    def bulk_create_links(self, workspace_name: str, links: list) -> int:
-        # Objects can be in pages, so one POST request per page
-        for page in links:
-            version_id = self.workspace['versionId']
-            headers = {'Authorization': f"Bearer {self.token}"}
-            response = self.http_client.post(
-                                     f"{self.url}/{self.route}/bulktree/{version_id}",
-                                     json=page,
-                                     headers=headers)
-            code = response.status_code
-            body_json = response.json()
-            if code != 201:
-                raise Exception(body_json['error'])
-            logging.info(f"bulk_create_links - {body_json}")
-        return 201

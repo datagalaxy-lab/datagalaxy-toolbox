@@ -3,7 +3,7 @@ from typing import Optional
 
 from toolbox.api.datagalaxy_api_modules import DataGalaxyApiModules
 from toolbox.api.http_client import HttpClient
-from toolbox.commands.utils import config_workspace
+from toolbox.commands.utils import config_workspace, create_batches_of_links
 
 
 def copy_links(url_source: str,
@@ -105,61 +105,10 @@ def copy_links(url_source: str,
         http_client=http_client
     )
 
-    # Creating links in target workspace
-    target_links_api.bulk_create_links(workspace_name=workspace_target_name, links=link_batches)
+    # Creating links in target workspace, one call per batch
+    for batch in link_batches:
+        target_links_api.bulk_upsert_tree(workspace_name=workspace_target_name, bulktree=batch)
     return 0
-
-
-def create_batches_of_links(input_arrays, max_size=5000):
-    batches = []  # This will hold the list of arrays
-    current_batch = []  # Temporary array to build chunks
-
-    for arr in input_arrays:
-        for obj in arr:  # Add each object from the input array
-            links = parse_links(obj)
-            if len(current_batch) < max_size:
-                current_batch += links
-            else:
-                # When the current array reaches max size, save it and start a new one
-                batches.append(current_batch)
-                current_batch = links
-
-    # Add the remaining objects in `current_batch` if it's not empty
-    if current_batch:
-        batches.append(current_batch)
-
-    return batches
-
-
-def parse_links(obj: dict) -> list:
-    links = []
-    # DPI are ignored since they are handled differently
-    if "DataProcessingItem" in obj["typePath"]:
-        return []
-    # ReferenceDataValue have to be ignored (at least for now)
-    if "ReferenceDataValue" in obj["typePath"]:
-        return []
-    for key in obj["links"]:
-        for dest in obj["links"][key]:
-            if "DataProcessingItem" in dest["typePath"]:
-                continue
-            if "ReferenceDataValue" in dest["typePath"]:
-                logging.warning('The following link cannot be created with the API, please create it manually:')
-                logging.warning(obj["path"])
-                logging.warning(obj["typePath"])
-                logging.warning(key)
-                logging.warning(dest["path"])
-                logging.warning(dest["typePath"])
-                continue
-            link = {
-                    'fromPath': obj["path"],
-                    'fromType': obj["typePath"],
-                    'linkType': key,
-                    'toPath': dest["path"],
-                    'toType': dest["typePath"]
-                    }
-            links.append(link)
-    return links
 
 
 # This is a WIP and not used yet in the codebase
