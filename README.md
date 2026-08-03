@@ -197,7 +197,7 @@ datagalaxy-toolbox.exe delete-usages [-h] --url URL --token TOKEN --workspace WO
 
 The DataGalaxy Toolbox requires:
 
-- Python >= 3.9
+- Python >= 3.11
 
 ### Steps
 

@@ -15,7 +15,7 @@ jobs:
     name: Build Linux
     strategy:
       matrix:
-        python-version: ["3.9"]
+        python-version: ["3.11"]
     runs-on: ubuntu-latest
     steps:
     - name: Checkout repository
@@ -39,7 +39,7 @@ jobs:
     name: Build Windows
     strategy:
       matrix:
-        python-version: ["3.9"]
+        python-version: ["3.11"]
     runs-on: windows-2022
     steps:
     - uses: actions/checkout@v4
