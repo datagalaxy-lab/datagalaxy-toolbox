@@ -111,11 +111,21 @@ def test_http_client_patch_with_ssl_verification_disabled(mocker):
     )
 
 
-def test_http_client_with_valid_ssl_certificate():
+def test_http_client_with_valid_ssl_certificate(mocker):
+    response_mock = mocker.Mock(status_code=200)
+    get_mock = mocker.patch(
+        "toolbox.api.http_client.requests.get",
+        return_value=response_mock,
+    )
     http_client_with_ssl = HttpClient(verify_ssl=True)
-    response = http_client_with_ssl.get("https://httpbingo.org/get")
-    assert response.status_code == 200
+    response = http_client_with_ssl.get(TEST_URL)
 
-    http_client_without_ssl = HttpClient(verify_ssl=False)
-    response = http_client_without_ssl.get("https://httpbingo.org/get")
     assert response.status_code == 200
+    get_mock.assert_called_once_with(TEST_URL, headers=None, params=None, verify=True)
+
+    get_mock.reset_mock()
+    http_client_without_ssl = HttpClient(verify_ssl=False)
+    response = http_client_without_ssl.get(TEST_URL)
+
+    assert response.status_code == 200
+    get_mock.assert_called_once_with(TEST_URL, headers=None, params=None, verify=False)
