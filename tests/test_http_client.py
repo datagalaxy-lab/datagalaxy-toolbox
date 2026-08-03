@@ -71,9 +71,9 @@ def test_http_client_patch_with_ssl_verification_disabled():
 
 def test_http_client_with_valid_ssl_certificate():
     http_client_with_ssl = HttpClient(verify_ssl=True)
-    response = http_client_with_ssl.get("https://httpbin.org/get")
+    response = http_client_with_ssl.get("https://httpbingo.org/get")
     assert response.status_code == 200
 
     http_client_without_ssl = HttpClient(verify_ssl=False)
-    response = http_client_without_ssl.get("https://httpbin.org/get")
+    response = http_client_without_ssl.get("https://httpbingo.org/get")
     assert response.status_code == 200
