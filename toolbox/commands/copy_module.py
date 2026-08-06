@@ -226,15 +226,6 @@ def handle_dpis(objects: list, module_api, workspace_name: str):
                         items[item_index]['outputs'][output_index]['entityPath'] = output['path']
                 else:
                     items[item_index]['outputs'] = []
-                # Mapping some DPI types
-                if item['type'] == "Search":
-                    items[item_index]['type'] = "Lookup"
-                if item['type'] == "ConstantVariable":
-                    # items[item_index]['type'] = "Variable" (temporary)
-                    items[item_index]['type'] = "Undefined"
-                if item['type'] == "Calculation":
-                    # items[item_index]['type'] = "AnalyticalCalculation" (temporary)
-                    items[item_index]['type'] = "Undefined"
             page[dp_index]['dataProcessingItems'] = items
         objects[page_index] = page
 
