@@ -3,77 +3,129 @@ import requests
 from toolbox.api.http_client import HttpClient
 
 
-def test_http_client_with_ssl_verification_enabled():
+TEST_URL = "https://example.com"
+
+
+def test_http_client_with_ssl_verification_enabled(mocker):
+    get_mock = mocker.patch(
+        "toolbox.api.http_client.requests.get",
+        side_effect=requests.exceptions.SSLError,
+    )
     http_client = HttpClient(verify_ssl=True)
 
     with pytest.raises(requests.exceptions.SSLError):
-        http_client.get("https://self-signed.badssl.com/")
+        http_client.get(TEST_URL)
+
+    get_mock.assert_called_once_with(TEST_URL, headers=None, params=None, verify=True)
 
 
-def test_http_client_with_ssl_verification_disabled():
+def test_http_client_with_ssl_verification_disabled(mocker):
+    get_mock = mocker.patch("toolbox.api.http_client.requests.get")
     http_client = HttpClient(verify_ssl=False)
 
-    try:
-        response = http_client.get("https://self-signed.badssl.com/")
-        assert response.status_code in [200, 400, 401, 403, 404, 500]  # Any valid HTTP status
-    except requests.exceptions.SSLError:
-        pytest.fail("SSL error occurred even with SSL verification disabled")
+    response = http_client.get(TEST_URL)
+
+    assert response is get_mock.return_value
+    get_mock.assert_called_once_with(TEST_URL, headers=None, params=None, verify=False)
 
 
-def test_http_client_default_ssl_verification():
+def test_http_client_default_ssl_verification(mocker):
+    get_mock = mocker.patch(
+        "toolbox.api.http_client.requests.get",
+        side_effect=requests.exceptions.SSLError,
+    )
     http_client = HttpClient()
 
     assert http_client.verify_ssl is True
 
     with pytest.raises(requests.exceptions.SSLError):
-        http_client.get("https://self-signed.badssl.com/")
+        http_client.get(TEST_URL)
+
+    get_mock.assert_called_once_with(TEST_URL, headers=None, params=None, verify=True)
 
 
-def test_http_client_post_with_ssl_verification_disabled():
+def test_http_client_post_with_ssl_verification_disabled(mocker):
+    post_mock = mocker.patch("toolbox.api.http_client.requests.post")
+    http_client = HttpClient(verify_ssl=False)
+    payload = {"test": "data"}
+
+    response = http_client.post(TEST_URL, json=payload)
+
+    assert response is post_mock.return_value
+    post_mock.assert_called_once_with(
+        TEST_URL,
+        headers=None,
+        json=payload,
+        params=None,
+        verify=False,
+    )
+
+
+def test_http_client_put_with_ssl_verification_disabled(mocker):
+    put_mock = mocker.patch("toolbox.api.http_client.requests.put")
+    http_client = HttpClient(verify_ssl=False)
+    payload = {"test": "data"}
+
+    response = http_client.put(TEST_URL, json=payload)
+
+    assert response is put_mock.return_value
+    put_mock.assert_called_once_with(
+        TEST_URL,
+        headers=None,
+        json=payload,
+        params=None,
+        verify=False,
+    )
+
+
+def test_http_client_delete_with_ssl_verification_disabled(mocker):
+    delete_mock = mocker.patch("toolbox.api.http_client.requests.delete")
     http_client = HttpClient(verify_ssl=False)
 
-    try:
-        response = http_client.post("https://self-signed.badssl.com/", json={"test": "data"})
-        assert response.status_code in [200, 400, 401, 403, 404, 405, 500]
-    except requests.exceptions.SSLError:
-        pytest.fail("SSL error occurred even with SSL verification disabled")
+    response = http_client.delete(TEST_URL)
+
+    assert response is delete_mock.return_value
+    delete_mock.assert_called_once_with(
+        TEST_URL,
+        headers=None,
+        json=None,
+        params=None,
+        verify=False,
+    )
 
 
-def test_http_client_put_with_ssl_verification_disabled():
+def test_http_client_patch_with_ssl_verification_disabled(mocker):
+    patch_mock = mocker.patch("toolbox.api.http_client.requests.patch")
     http_client = HttpClient(verify_ssl=False)
+    payload = {"test": "data"}
 
-    try:
-        response = http_client.put("https://self-signed.badssl.com/", json={"test": "data"})
-        assert response.status_code in [200, 400, 401, 403, 404, 405, 500]
-    except requests.exceptions.SSLError:
-        pytest.fail("SSL error occurred even with SSL verification disabled")
+    response = http_client.patch(TEST_URL, json=payload)
 
-
-def test_http_client_delete_with_ssl_verification_disabled():
-    http_client = HttpClient(verify_ssl=False)
-
-    try:
-        response = http_client.delete("https://self-signed.badssl.com/")
-        assert response.status_code in [200, 400, 401, 403, 404, 405, 500]
-    except requests.exceptions.SSLError:
-        pytest.fail("SSL error occurred even with SSL verification disabled")
+    assert response is patch_mock.return_value
+    patch_mock.assert_called_once_with(
+        TEST_URL,
+        headers=None,
+        json=payload,
+        params=None,
+        verify=False,
+    )
 
 
-def test_http_client_patch_with_ssl_verification_disabled():
-    http_client = HttpClient(verify_ssl=False)
-
-    try:
-        response = http_client.patch("https://self-signed.badssl.com/", json={"test": "data"})
-        assert response.status_code in [200, 400, 401, 403, 404, 405, 500]
-    except requests.exceptions.SSLError:
-        pytest.fail("SSL error occurred even with SSL verification disabled")
-
-
-def test_http_client_with_valid_ssl_certificate():
+def test_http_client_with_valid_ssl_certificate(mocker):
+    response_mock = mocker.Mock(status_code=200)
+    get_mock = mocker.patch(
+        "toolbox.api.http_client.requests.get",
+        return_value=response_mock,
+    )
     http_client_with_ssl = HttpClient(verify_ssl=True)
-    response = http_client_with_ssl.get("https://httpbin.org/get")
-    assert response.status_code == 200
+    response = http_client_with_ssl.get(TEST_URL)
 
-    http_client_without_ssl = HttpClient(verify_ssl=False)
-    response = http_client_without_ssl.get("https://httpbin.org/get")
     assert response.status_code == 200
+    get_mock.assert_called_once_with(TEST_URL, headers=None, params=None, verify=True)
+
+    get_mock.reset_mock()
+    http_client_without_ssl = HttpClient(verify_ssl=False)
+    response = http_client_without_ssl.get(TEST_URL)
+
+    assert response.status_code == 200
+    get_mock.assert_called_once_with(TEST_URL, headers=None, params=None, verify=False)
