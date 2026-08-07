@@ -2,6 +2,7 @@ from typing import Optional
 import logging
 
 from toolbox.api.datagalaxy_api_modules import DataGalaxyApiModules
+from toolbox.api.datagalaxy_api import build_bulktree, remove_technology_code, create_batches
 from toolbox.api.http_client import HttpClient
 from toolbox.commands.utils import config_workspace
 
@@ -113,7 +114,7 @@ def copy_module(module: str,
                     fk_technical_name = foreign_key['technicalName']
                     fk_display_name = foreign_key['displayName']
                     if len(foreign_key['columns']) < 1:
-                        logging.warn(f"FK {fk_technical_name} is a functional relationship, ignoring")
+                        logging.warning(f"FK {fk_technical_name} is a functional relationship, ignoring")
                         continue
                     pk_technical_name = foreign_key['primaryKey']['technicalName']
                     pk_table_id = foreign_key['parents']['structure']['id']
@@ -158,13 +159,20 @@ def copy_module(module: str,
                     source=source
                 )
 
-                # bulk upsert source tree
-                target_module_api.bulk_upsert_source_tree(
-                    workspace_name=workspace_target_name,
-                    source=source,
-                    objects=containers + structures + fields,
-                    tag_value=tag_value
-                )
+                # Create batches
+                batches = create_batches(containers + structures + fields)
+                # One bulktree call per batch
+                for batch in batches:
+                    bulktree = build_bulktree([source] + batch)
+                    if len(bulktree) > 1:
+                        raise Exception(f"Problem while creating the bulktree for source {source['name']}")
+                    bulktree = bulktree[0]
+                    # bulk upsert source tree
+                    target_module_api.bulk_upsert_tree(
+                        workspace_name=workspace_target_name,
+                        bulktree=bulktree,
+                        tag_value=tag_value
+                    )
 
                 # create PKs and FKs if they exist
                 if len(pks) > 0:
@@ -184,12 +192,22 @@ def copy_module(module: str,
         if module == "DataProcessing":
             handle_dpis(source_objects, source_module_api, workspace_source_name)
 
-        # Create objects on target workspace
-        target_module_api.bulk_upsert_tree(
-            workspace_name=workspace_target_name,
-            objects=source_objects,
-            tag_value=tag_value
-        )
+        # Build bulktree for each page
+        for page in source_objects:
+            bulktree = build_bulktree(page)
+            # If a parent usage has a technology, it is necessary to delete the "technologyCode" property in every children
+            # Otherwise the API returns an error. Only the parent can hold the "technologyCode" property
+            for tree in bulktree:
+                if 'children' in tree:
+                    for children in tree['children']:
+                        remove_technology_code(children)
+
+            # Send bulktree on target workspace
+            target_module_api.bulk_upsert_tree(
+                workspace_name=workspace_target_name,
+                bulktree=bulktree,
+                tag_value=tag_value
+            )
 
     return 0
 
@@ -197,32 +215,27 @@ def copy_module(module: str,
 # This is specific for the DataProcessings module
 def handle_dpis(objects: list, module_api, workspace_name: str):
     # fetch dataprocessingsitems for each dp in source workspace (but not dataflows)
-    for page in objects:
-        page_index = objects.index(page)
-        for dp in page:
+    for page_index, page in enumerate(objects):
+        for dp_index, dp in enumerate(page):
             if dp['type'] == "DataFlow":
                 # a DataFlow do not have dpi
                 continue
-            dp_index = page.index(dp)
             items = module_api.list_object_items(workspace_name=workspace_name, parent_id=dp['id'])
             if len(items) < 1:
                 # no dpi, let's move on to the next one
                 continue
-            for item in items:
-                item_index = items.index(item)
+            for item_index, item in enumerate(items):
                 # some objects have no summary, and some have a summary but set to "None" which raises an error in the API somehow
                 if "summary" in items[item_index] and items[item_index]['summary'] is None:
                     items[item_index]['summary'] = ""
                 # for inputs and outputs, property 'path' must be named 'entityPath'
                 if 'inputs' in item:
-                    for input in item['inputs']:
-                        input_index = item['inputs'].index(input)
+                    for input_index, input in enumerate(item['inputs']):
                         items[item_index]['inputs'][input_index]['entityPath'] = input['path']
                 else:
                     items[item_index]['inputs'] = []
                 if 'outputs' in item:
-                    for output in item['outputs']:
-                        output_index = item['outputs'].index(output)
+                    for output_index, output in enumerate(item['outputs']):
                         items[item_index]['outputs'][output_index]['entityPath'] = output['path']
                 else:
                     items[item_index]['outputs'] = []

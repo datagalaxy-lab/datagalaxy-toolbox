@@ -8,7 +8,22 @@ from toolbox.commands.copy_module import copy_module
 
 def mock_list_objects_on_source_workspace(self, workspace_name):
     if workspace_name == 'workspace_source':
-        return [['object1', 'object2', 'object']]
+        return [[
+            {
+                'id': 'domain_id',
+                'path': '\\domain',
+                'functionalPath': '\\Domain',
+                'typePath': '\\Glossary',
+                'attributes': {'summary': 'Domain summary'},
+            },
+            {
+                'id': 'term_id',
+                'path': '\\domain\\term',
+                'functionalPath': '\\Domain\\Term',
+                'typePath': '\\Glossary\\Term',
+                'attributes': {'description': 'Term description'},
+            },
+        ]]
     return []
 
 
