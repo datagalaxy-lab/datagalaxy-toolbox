@@ -1,7 +1,7 @@
 flake8==7.3.0
 pytest==9.1.1
 twine==7.0.0
-build==1.6.0
+build==1.6.1
 wheel==0.48.0
 requests==2.34.2
 pytest-mock==3.15.1
