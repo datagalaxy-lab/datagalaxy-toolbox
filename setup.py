@@ -7,5 +7,5 @@ setup(name='toolbox',
       author_email='opencode@datagalaxy.com',
       python_requires='>=3.11',
       packages=find_packages(),
-      install_requires=['requests==2.34.2', 'PyJWT==2.13.0']
+      install_requires=['requests==2.34.2', 'PyJWT==2.15.0']
       )
