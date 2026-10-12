@@ -25,9 +25,11 @@ class DataGalaxyApiModules:
         self.workspace = workspace
         self.http_client = http_client
 
-    def list_objects(self, workspace_name: str, include_links=False) -> list:
+    def list_objects(self, workspace_name: str, object_name: Optional[str] = None, include_links=False) -> list:
         version_id = self.workspace['versionId']
         params = {'versionId': version_id, 'limit': '5000'}
+        if object_name is not None:
+            params['name'] = object_name
         if include_links is True:
             params['includeLinks'] = 'true'
         else:
@@ -80,15 +82,18 @@ class DataGalaxyApiModules:
         return result
 
     # This is a specific request for Dictionary
-    def list_children_objects(self, workspace_name: str, parent_id: str, object_type: str, include_links=False) -> list:
+    def list_children_objects(self, workspace_name: str, parent_id: str, object_type: str, object_name: Optional[str] = None, include_links=False) -> list:
         if object_type not in ["containers", "structures", "fields"]:
             raise Exception('The specified object type does not exist.')
 
         version_id = self.workspace['versionId']
+        params = {'versionId': version_id, 'limit': '5000', 'parentId': parent_id}
+        if object_name is not None:
+            params['name'] = object_name
         if include_links is True:
-            params = {'versionId': version_id, 'limit': '5000', 'includeLinks': 'true', 'parentId': parent_id}
+            params['includeLinks'] = 'true'
         else:
-            params = {'versionId': version_id, 'limit': '5000', 'includeAttributes': 'true', 'parentId': parent_id}
+            params['includeAttributes'] = 'true'
         headers = {'Authorization': f"Bearer {self.token}"}
         response = self.http_client.get(f"{self.url}/{object_type}", params=params, headers=headers)
         code = response.status_code
@@ -161,13 +166,14 @@ class DataGalaxyApiModules:
 
         return source_id
 
-    def bulk_upsert_tree(self, workspace_name: str, bulktree: dict, tag_value: Optional[str] = None) -> int:
+    def bulk_upsert_tree(self, workspace_name: str, bulktree: dict, links_by_id: bool = False, tag_value: Optional[str] = None) -> int:
         if tag_value is not None:
             bulktree = prune_tree(bulktree, tag_value)
 
         version_id = self.workspace['versionId']
         headers = {'Authorization': f"Bearer {self.token}"}
-        response = self.http_client.post(f"{self.url}/{self.route}/bulktree/{version_id}", json=bulktree, headers=headers)
+        bulk = "bulk" if links_by_id else "bulktree"
+        response = self.http_client.post(f"{self.url}/{self.route}/{bulk}/{version_id}", json=bulktree, headers=headers)
         code = response.status_code
         body_json = response.json()
         if 200 <= code < 300:
