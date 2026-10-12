@@ -11,6 +11,7 @@ from toolbox.commands.copy_module import copy_module, copy_glossary_parse, copy_
 from toolbox.commands.copy_links import copy_links, copy_links_parse
 from toolbox.commands.export_module import export_module, export_glossary_parse, export_dictionary_parse, export_dataprocessings_parse, export_usages_parse
 from toolbox.commands.export_links import export_links, export_links_parse
+from toolbox.commands.map_glossary_dictionary import map_glossary_dictionary, map_glossary_dictionary_parse
 from toolbox.commands.delete_module import delete_module, delete_glossary_parse, delete_dictionary_parse, delete_dataprocessings_parse, delete_usages_parse
 
 
@@ -50,6 +51,8 @@ def run(args):
     delete_dictionary_parse(subparsers)
     delete_dataprocessings_parse(subparsers)
     delete_usages_parse(subparsers)
+    # Mapping
+    map_glossary_dictionary_parse(subparsers)
 
     # parse some argument lists
     result = parser.parse_args(args)
@@ -321,6 +324,22 @@ def run(args):
         )
         logging.info("<<< delete_usages")
         return 0
+
+    # Mapping
+    if result.subparsers_name == 'map-glossary-dictionary':
+        logging.info(">>> map_glossary_dictionary")
+        exit_code = map_glossary_dictionary(
+            result.url,
+            result.token,
+            result.workspace,
+            result.version,
+            result.file_path,
+            result.glossary_column,
+            result.dictionary_column,
+            http_client
+        )
+        logging.info("<<< map_glossary_dictionary")
+        return exit_code
 
     parser.print_help(sys.stderr)
     return 1
