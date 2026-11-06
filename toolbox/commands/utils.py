@@ -73,6 +73,10 @@ def parse_links(obj: dict) -> list:
     if "ReferenceDataValue" in obj["typePath"]:
         return []
     for key in obj["links"]:
+        # Links to diagrams cannot be created with the API, so they are skipped
+        # The API returns the key as "IsSourceForDiagram" (not the UI label)
+        if key.replace(" ", "").lower() == "issourcefordiagram":
+            continue
         for dest in obj["links"][key]:
             if "DataProcessingItem" in dest["typePath"]:
                 continue
